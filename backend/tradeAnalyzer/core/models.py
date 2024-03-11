@@ -3,7 +3,6 @@ from django.db import models
 # i've created a rough model for now. we'll change feilds as and when required.
 from django.contrib.auth.models import AbstractUser
 class Users(AbstractUser):
-  user_ID=models.IntegerField(unique=True)
   user_name = models.CharField(max_length=255,unique=True)
   user_pwd = models.CharField(max_length=500)
   user_email = models.CharField(max_length=50)
@@ -15,7 +14,7 @@ class Stocks(models.Model):
 
 class Stock_prices(models.Model):
   stk_id=models.ForeignKey(Stocks, on_delete=models.CASCADE,related_name="stock_priceable",null=True)
-  profit_till_date=models.IntegerField()
+  stk_price=models.IntegerField()
   date_of_pricing=models.DateTimeField(default=0)
 
 class Transactiontable(models.Model):

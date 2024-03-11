@@ -1,6 +1,7 @@
 import './App.css';
-import Login from './Components/Login/login';
-import SignUp from './Components/SignUp/SignUp.jsx'
+// import Login from './Components/Login/login';
+// import SignUp from './Components/SignUp/SignUp.jsx'
+import StockList from './Components/MainPage/mainpage.jsx'
 import{
   BrowserRouter as Router , Routes,Route
 } from 'react-router-dom'
@@ -12,8 +13,9 @@ function App() {
       <Router>
         <Routes>
           <Route path='/' element={<Profile/>} />
-          <Route path='/login' element={<Login/>} />
-          <Route path='/signup' element={<SignUp />} />
+          <Route path='/getlist' element={<StockList/>} />
+          {/* <Route path='/login' element={<Login/>} /> */}
+          {/* <Route path='/signup' element={<SignUp />} /> */}
         </Routes>
       </Router>
       {/* <Login/> */}
