@@ -14,7 +14,7 @@ class Stocks(models.Model):
 
 class Stock_prices(models.Model):
   stk_id=models.ForeignKey(Stocks, on_delete=models.CASCADE,related_name="stock_priceable",null=True)
-  stk_price=models.IntegerField()
+  stk_price=models.IntegerField()  #average of high , low and close
   date_of_pricing=models.DateTimeField(default=0)
 
 class Transactiontable(models.Model):
@@ -25,7 +25,7 @@ class Transactiontable(models.Model):
   txn_qty=models.IntegerField()
   txn_price=models.IntegerField()
   market_value=models.IntegerField()
-  transaction_type = models.CharField(max_length=255) # buy or sell
+  transaction_type = models.CharField(max_length=255) # buy(0) or sell(1)
 
   
 class Positiontable(models.Model):
@@ -36,6 +36,7 @@ class Positiontable(models.Model):
   last_price=models.IntegerField()
   weighed_price=models.IntegerField()
   date=models.DateField()
+  pv=models.IntegerField()
 
 class Pnltable(models.Model):
   user = models.ForeignKey(Users, on_delete=models.CASCADE,related_name="user_pnl",null=True)
