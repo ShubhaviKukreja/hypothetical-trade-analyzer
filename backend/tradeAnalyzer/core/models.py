@@ -39,7 +39,6 @@ class Positiontable(models.Model):
 
 class Pnltable(models.Model):
   user = models.ForeignKey(Users, on_delete=models.CASCADE,related_name="user_pnl",null=True)
-  stk_id = models.ForeignKey(Stocks, on_delete=models.CASCADE,related_name="stock_pnl",null=True)
   pnl=models.IntegerField()
   date=models.DateField()
 

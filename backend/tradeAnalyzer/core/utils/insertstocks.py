@@ -1,6 +1,6 @@
 import requests
 
-url = 'http://localhost:8000/stocks/'
+url = 'http://localhost:8000/addstocks/'
 data = [
     {"stk_id": 1, "stk_name": "NFLX"},
     {"stk_id": 2, "stk_name": "Advanced Micro Devices Inc."},

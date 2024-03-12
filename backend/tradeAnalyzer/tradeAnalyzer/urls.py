@@ -20,6 +20,10 @@ from core.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('stocks/', addStock),
+    path('addstocks/', addStock),
     path('getstocklist/', getstocklist),
+    path('getTransactionHis/', getTransactionHis),
+    path('getPositionInfo',getPositionInfo),
+    path('getCurrentPNL',getCurrentPNL),
+    path('getRiskandPNL',getRiskandPNL)
 ]

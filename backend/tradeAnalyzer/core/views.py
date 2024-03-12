@@ -13,6 +13,33 @@ def getstocklist(request):
     stocks = StocksSerializer(data,many=True)
     return Response(stocks.data)
 
+@api_view(['GET'])
+def getTransactionHis(request):
+    data = Transactiontable.objects.filter(user=request.user)
+    transaction = TransactiontableSerializer(data,many=True)
+    return Response(transaction.data)
+
+@api_view(['GET'])
+def getPositionInfo(request):
+    data = Positiontable.objects.filter(user=request.user)
+    position = PositiontableSerializer(data,many=True)
+    return Response(position.data)
+
+
+@api_view(['GET'])
+def getCurrentPNL(request):
+    data = Pnltable.objects.filter(user=request.user)
+    pnl = PnltableSerializer(data,many=True)
+    return Response(pnl.data)
+
+@api_view(['POST'])
+def getRiskandPNL(request):
+    data=request.data
+    risk=compute_risk(data['stk_id'],data['quantity'])
+    current_positions = Positiontable.objects.filter(user=request.user)
+    pnl=compute_pnl(data['stk_id'],data['quantity'],current_positions)
+    return Response({"risk":risk,"pnl":pnl})
+
 @api_view(['POST'])
 def addStock(request):
     print(request.data)
@@ -29,35 +56,9 @@ def getCurrentPosition(request,stock_name):
     position = PositiontableSerializer(data,many=True)
     return Response(position.data)
 
-@api_view(['GET'])
-def getRiskOnCurrentPosition(request,stock_name):
-    stock=Stocks.objects.get(stk_name=stock_name)
-    data = Positiontable.objects.filter(user=request.user,stk_id=stock)
-    position = PositiontableSerializer(data,many=True)    
-    risk = compute_risk(position.data)
-    return Response(risk)
 
-@api_view(['GET'])
-def getPNL(request,stock_name):
-    stock=Stocks.objects.get(stk_name=stock_name)
-    data = Pnltable.objects.filter(user=request.user,stk_id=stock)
-    pnl = PnltableSerializer(data,many=True)
-    return Response(pnl.data)
 
-@api_view(['POST'])
-def addTransaction(request):
-    transaction = TransactiontableSerializer(data=request.data)
-    if transaction.is_valid():
-        transaction.save()
-    return Response("Transaction added successfully")
 
-@api_view(['UPDATE'])
-def updatePosition(request):
-    pos=Positiontable.objects.get(user=request.user,stk_id=request.data['company_name'])
-    position = PositiontableSerializer(instance=pos,data=request.data)
-    if position.is_valid():
-        position.save()
-    return Response("Position updated successfully")
 
 
 
