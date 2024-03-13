@@ -10,6 +10,31 @@ from django.db.models import Sum
 import pandas as pd
 from django.http import JsonResponse
 # Create your views here.
+from rest_framework import status
+from django.contrib.auth.hashers import make_password, check_password
+
+
+
+
+@api_view(['POST'])
+def login(request):
+    if request.method == 'POST':
+        username = request.data.get('username')
+        password = request.data.get('password')
+        # hashed_password=make_password(password)
+        userdata=Users.objects.filter(user_name=username).values()
+        if len(userdata)==0 :
+            print("no user")
+            return Response({'message': 'User does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        if (password==userdata[0]['user_pwd']):
+            return Response({'message': 'Login successful'})
+        else:
+            return Response({'message': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+
+    
+
+
+
 @api_view(['GET'])
 def getstocklist(request):
     data = Stocks.objects.all()
