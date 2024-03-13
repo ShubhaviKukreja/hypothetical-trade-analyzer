@@ -33,16 +33,15 @@ class Positiontable(models.Model):
   user = models.ForeignKey(Users, on_delete=models.CASCADE,related_name="user_postable",null=True)
   stk_id = models.ForeignKey(Stocks, on_delete=models.CASCADE,related_name="stock_postable",null=True)
   psn_qty=models.IntegerField()
-  last_price=models.IntegerField()
   weighed_price=models.IntegerField()
   date=models.DateField()
-  pv=models.IntegerField()
+  pv=models.IntegerField(default=0)
 
 class Pnltable(models.Model):
   user = models.ForeignKey(Users, on_delete=models.CASCADE,related_name="user_pnl",null=True)
   pnl=models.IntegerField()
   date=models.DateField()
-
+  stk_id=models.IntegerField()
 
 
   
