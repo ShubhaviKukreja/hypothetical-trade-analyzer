@@ -11,6 +11,7 @@ class Users(AbstractUser):
 class Stocks(models.Model):
   stk_id=models.IntegerField()
   stk_name=models.CharField(max_length=50)
+  # stk_info=models.TextField()
 
 class Stock_prices(models.Model):
   stk_id=models.ForeignKey(Stocks, on_delete=models.CASCADE,related_name="stock_priceable",null=True)

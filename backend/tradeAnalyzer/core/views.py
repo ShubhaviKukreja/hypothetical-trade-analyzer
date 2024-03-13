@@ -7,7 +7,8 @@ from . serializers import *
 from . utils import *
 import datetime
 from django.db.models import Sum
-
+import pandas as pd
+from django.http import JsonResponse
 # Create your views here.
 @api_view(['GET'])
 def getstocklist(request):
@@ -37,9 +38,13 @@ def getCurrentPNL(request):
 @api_view(['POST'])
 def getRiskandPNL(request):
     data=request.data
-    risk=compute_risk(data['stk_id'],data['quantity'])
-    current_positions = Positiontable.objects.filter(user=request.user)
-    _,_,pnl=compute_pnl(data['stk_id'],data['quantity'],current_positions)
+    request.user=Users.objects.all()[0]
+    risk,_=compute_risk(request)
+    stk=Stocks.objects.get(stk_id=data['stk_id'])
+    current_positions = Stock_prices.objects.filter(stk_id=stk)[0].stk_price
+
+    _,_,pnl=compute_pnl(request.user,data['stk_id'],data['quantity'],current_positions)
+
     return Response({"risk":risk,"pnl":pnl})
 
 @api_view(['POST'])
@@ -51,17 +56,21 @@ def addStock(request):
         return Response("stock data added successfully")
 
 
-
 @api_view(['POST'])
 def buyStock(request):
     # print(request.data)
-    stockdata = StocksSerializer(data=request.data, many=True)
-    qty=request.qty
+    stockdata={
+        "stk_id":request.data['stk_id']
+    }
+    # stockdata = StocksSerializer(data=request.data, many=True)
+    qty=request.data['qty']
     cur_date=datetime.date.today()
-    cur_stock_price=(Stock_prices.objects.filter(stk_id=stockdata['stk_id'])[0])['stk_price']
+    cur_stock_price=(Stock_prices.objects.filter(stk_id=stockdata['stk_id'])[0]).stk_price
 
     #adding current transaction to transaction table
-    txn_obj=Transactiontable(date=cur_date, stk_id=stockdata['stk_id'], user=request.user, txn_qty=qty, txn_price=cur_stock_price, market_value=qty*cur_stock_price, transaction_type=0) #here 0 denotes that type is buy
+    stk=Stocks.objects.filter(stk_id=stockdata['stk_id'])[0]
+    request.user=Users.objects.all()[0]
+    txn_obj=Transactiontable(date=cur_date, stk_id=stk, user=request.user, txn_qty=qty, txn_price=cur_stock_price, market_value=qty*cur_stock_price, transaction_type=0) #here 0 denotes that type is buy
     txn_obj.save()
 
     #adding to position table
@@ -93,6 +102,13 @@ def getCurrentPosition(request,stock_name):
     data = Positiontable.objects.filter(user=request.user,stk_id=stock)
     position = PositiontableSerializer(data,many=True)
     return Response(position.data)
+
+@api_view(['POST'])
+def getClosingPrices(request):
+    stk_prices=ClosingPrices(request)
+    return JsonResponse(stk_prices, safe=False)
+
+
 
 
 
