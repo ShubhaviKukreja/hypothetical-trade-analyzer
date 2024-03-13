@@ -2,9 +2,9 @@ from rest_framework import serializers
 
 from .models import *
 
-class AvailableStocksSerializer(serializers.ModelSerializer):
+class StocksSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AvailableStocks
+        model = Stocks
         fields = '__all__'
 
 class PositiontableSerializer(serializers.ModelSerializer):
