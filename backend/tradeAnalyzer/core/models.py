@@ -3,6 +3,7 @@ from django.db import models
 # i've created a rough model for now. we'll change feilds as and when required.
 from django.contrib.auth.models import AbstractUser
 class Users(AbstractUser):
+
   user_name = models.CharField(max_length=255,unique=True)
   user_pwd = models.CharField(max_length=500)
   user_email = models.CharField(max_length=50)
@@ -11,6 +12,7 @@ class Users(AbstractUser):
 class Stocks(models.Model):
   stk_id=models.IntegerField()
   stk_name=models.CharField(max_length=50)
+  # stk_info=models.TextField()
 
 class Stock_prices(models.Model):
   stk_id=models.ForeignKey(Stocks, on_delete=models.CASCADE,related_name="stock_priceable",null=True)
@@ -33,16 +35,15 @@ class Positiontable(models.Model):
   user = models.ForeignKey(Users, on_delete=models.CASCADE,related_name="user_postable",null=True)
   stk_id = models.ForeignKey(Stocks, on_delete=models.CASCADE,related_name="stock_postable",null=True)
   psn_qty=models.IntegerField()
-  last_price=models.IntegerField()
   weighed_price=models.IntegerField()
   date=models.DateField()
-  pv=models.IntegerField()
+  pv=models.IntegerField(default=0)
 
 class Pnltable(models.Model):
   user = models.ForeignKey(Users, on_delete=models.CASCADE,related_name="user_pnl",null=True)
   pnl=models.IntegerField()
   date=models.DateField()
-
+  stk_id=models.IntegerField()
 
 
   

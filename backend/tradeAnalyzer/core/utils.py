@@ -77,10 +77,21 @@ def compute_risk(request):
 
 
 def compute_pnl(user, stk_id, qty, cur_stock_price):
-    psn_obj=(Positiontable.objects.filter(user=user, stk_id=stk_id)[0]).pv
-    last_pv=(psn_obj[0])['pv']
-    pv=last_pv+cur_stock_price*qty
-    overall_qty=psn_obj.aggregate(Sum('psn_qty'))
+    psn_obj=(Positiontable.objects.filter(user=user, stk_id=stk_id)[0])
+    last_pv=(psn_obj).pv
+    pv=int(last_pv) + int(cur_stock_price) * int(qty)
+    overall_qty=(psn_obj).psn_qty
     weighed_price=pv/overall_qty
     pnl=(cur_stock_price-weighed_price)*overall_qty
     return pv, weighed_price, pnl
+
+def ClosingPrices(request):
+    stock_df=pd.read_csv("/Users/prajaktadarade/Documents/Deshaw/Hypothetical Trade Analyzer/hypothetical-trade-analyzer/csv_files/Stock_prices.csv")
+    ret = stock_df.loc[stock_df['stk_id']==request.data['stk_id']][:10]
+    formatted_prices = []
+
+    for _,price in ret.iterrows():
+        formatted_prices.append({'Date': price.Date, 'Close/Last': float(price['Close/Last'].replace('$',''))})  # Adjust this based on your actual data structure
+
+    return formatted_prices
+

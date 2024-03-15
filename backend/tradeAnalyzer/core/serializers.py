@@ -21,3 +21,8 @@ class TransactiontableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transactiontable
         fields = '__all__'
+
+class Stock_pricesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Stock_prices
+        fields = '__all__'
