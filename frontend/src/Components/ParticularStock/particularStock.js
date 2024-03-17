@@ -9,7 +9,10 @@ import { Chart as ChartJS } from "chart.js/auto";
 // Line.register(CategoryScale);
 const Main = () => {
   const [quantity, setQuantity] = useState('');
-  const [risk, setRisk] = useState('');
+  const [risk_cov, setRiskCov] = useState('');
+  const [risk_cor, setRiskCor] = useState('');
+  const [var_portfolio_cov, setVarCov] = useState('');
+  const [var_portfolio_cor, setVarCor] = useState('');
   const [pnl, setPnl] = useState('');
   const [closingPrices, setClosingPrices] = useState([]);
   const [chartData, setChartData] = useState({});
@@ -93,7 +96,10 @@ const Main = () => {
         body: JSON.stringify({ quantity, stk_id: 2 }), // static stock_id as 1
       });
       const data = await response.json();
-      setRisk(data.risk);
+      setVarCov(data.portfolio_var_covariance);
+      setVarCor(data.portfolio_var_correlation);
+      setRiskCov(data.risk_covariance);
+      setRiskCor(data.risk_correlation);
       setPnl(data.pnl);
     } catch (error) {
       console.error('Error:', error);
@@ -101,7 +107,7 @@ const Main = () => {
   };
 
   return (
-    <Tabs>
+    <Tabs className='tabs'>
       <TabList>
         <Tab>Risk Calculation</Tab>
         <Tab>Buying Stock</Tab>
@@ -123,7 +129,10 @@ const Main = () => {
           </form>
           {risk && pnl && (
             <div>
-              <p>Risk: {risk}</p>
+              <p>Risk using Covariance: {risk_cov}</p>
+              <p>Risk using Correlation: {risk_cov}</p>
+              <p>Portfolio Variance using Covariance: {var_portfolio_cov}</p>
+              <p>Portfolio Variance using Correlation: {var_portfolio_cor}</p>
               <p>PnL: {pnl}</p>
             </div>
           )}
