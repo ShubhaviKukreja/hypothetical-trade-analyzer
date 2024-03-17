@@ -27,5 +27,6 @@ urlpatterns = [
     path('getCurrentPNL',getCurrentPNL),
     path('getRiskandPNL',getRiskandPNL),
     path('getClosingPrices', getClosingPrices),
-    path('buyStock', buyStock)
+    path('buyStock', buyStock),
+    path('getStockInfo', getStockInfo),
 ]

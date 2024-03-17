@@ -1,5 +1,5 @@
 from django.db import models
-
+import json
 # i've created a rough model for now. we'll change feilds as and when required.
 from django.contrib.auth.models import AbstractUser
 class Users(AbstractUser):
@@ -12,7 +12,8 @@ class Users(AbstractUser):
 class Stocks(models.Model):
   stk_id=models.IntegerField()
   stk_name=models.CharField(max_length=50)
-  # stk_info=models.TextField()
+  stk_TickerSym=models.CharField(max_length=50)
+  stk_info=models.TextField()
 
 class Stock_prices(models.Model):
   stk_id=models.ForeignKey(Stocks, on_delete=models.CASCADE,related_name="stock_priceable",null=True)
