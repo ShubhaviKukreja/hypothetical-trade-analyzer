@@ -77,7 +77,9 @@ def compute_risk(request):
 
 
 def compute_pnl(user, stk_id, qty, cur_stock_price):
+
     psn_obj=(Positiontable.objects.filter(user=user, stk_id=stk_id)[0])
+    print(psn_obj)
     last_pv=(psn_obj).pv
     pv=int(last_pv) + int(cur_stock_price) * int(qty)
     overall_qty=(psn_obj).psn_qty
