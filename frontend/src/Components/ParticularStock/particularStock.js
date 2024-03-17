@@ -127,7 +127,7 @@ const Main = () => {
             </label>
             <button type="submit">Submit</button>
           </form>
-          {risk && pnl && (
+          {risk_cov && risk_cov && var_portfolio_cov && var_portfolio_cor && pnl && (
             <div>
               <p>Risk using Covariance: {risk_cov}</p>
               <p>Risk using Correlation: {risk_cov}</p>

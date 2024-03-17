@@ -39,34 +39,32 @@ def getStockInfo(request):
     data=request.data
     stk=Stocks.objects.get(stk_id=data['stk_id'])
     stkTickerSym = stk.stk_TickerSym
-    # try:
-    GetStockInformation = yahooFinance.Ticker(stkTickerSym)
-    stk_info=GetStockInformation.info
-    data={"Company Sector":stk_info['sector'],
-          "Price Earnings Ratio":stk_info['trailingPE'],
-          "Company Beta":stk_info['beta'],
-            "PE ratio":stk_info['forwardPE'],
-            "Dividend Yield":stk_info['dividendYield'],
-            "Market Cap":stk_info['marketCap'],
-            "Volume":stk_info['volume'],
-            "Average Volume":stk_info['averageVolume'],
-            "Previous Close":stk_info['previousClose'],
-            "Open":stk_info['open'],
-            "High":stk_info['dayHigh'],
-            "Low":stk_info['dayLow'],
-            "52 Week High":stk_info['fiftyTwoWeekHigh'],
-            "52 Week Low":stk_info['fiftyTwoWeekLow'],
-            "50 Day Moving Average":stk_info['fiftyDayAverage'],
-            "200 Day Moving Average":stk_info['twoHundredDayAverage'],
-            "Price to Sales Ratio":stk_info['priceToSalesTrailing12Months'],
-            "Price to Book Ratio":stk_info['priceToBook'],
-            "Currency":stk_info['currency'],
-          }
-    
-    stk.stk_info=json.dumps(data)
-    # except:
-    #     GetStockInformation=json.loads(stk.stk_info)
-    stk_info=GetStockInformation.info
+    try:
+        GetStockInformation = yahooFinance.Ticker(stkTickerSym)
+        stk_info=GetStockInformation.info
+        data={"Company Sector":stk_info['sector'],
+            "Price Earnings Ratio":stk_info['trailingPE'],
+            "Company Beta":stk_info['beta'],
+                "PE ratio":stk_info['forwardPE'],
+                "Dividend Yield":stk_info['dividendYield'],
+                "Market Cap":stk_info['marketCap'],
+                "Volume":stk_info['volume'],
+                "Average Volume":stk_info['averageVolume'],
+                "Previous Close":stk_info['previousClose'],
+                "Open":stk_info['open'],
+                "High":stk_info['dayHigh'],
+                "Low":stk_info['dayLow'],
+                "52 Week High":stk_info['fiftyTwoWeekHigh'],
+                "52 Week Low":stk_info['fiftyTwoWeekLow'],
+                "50 Day Moving Average":stk_info['fiftyDayAverage'],
+                "200 Day Moving Average":stk_info['twoHundredDayAverage'],
+                "Price to Sales Ratio":stk_info['priceToSalesTrailing12Months'],
+                "Price to Book Ratio":stk_info['priceToBook'],
+                "Currency":stk_info['currency'],
+            }
+        stk.stk_info=json.dumps(data)
+    except:
+        data=json.loads(stk.stk_info)
 
     return Response(data)
 
