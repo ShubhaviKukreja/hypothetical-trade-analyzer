@@ -14,13 +14,17 @@ import "./particularStock.css";
 // Line.register(CategoryScale);
 const Main = () => {
   const [quantity, setQuantity] = useState('');
-  const [risk, setRisk] = useState('');
+  const [risk_cov, setRiskCov] = useState('');
+  const [risk_cor, setRiskCor] = useState('');
+  const [var_portfolio_cov, setVarCov] = useState('');
+  const [var_portfolio_cor, setVarCor] = useState('');
   const [pnl, setPnl] = useState('');
-  const [closingPrices, setClosingPrices] = useState([]);
+  const [Prices, setPrices] = useState([]);
   const [chartData, setChartData] = useState({});
   const [quantity2, setQuantity2] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [stockinfo, setStockInfo] = useState({});
 
   const handleSubmit2 = async (e) => {
     e.preventDefault();
@@ -49,11 +53,12 @@ const Main = () => {
   useEffect(() => {
     // Fetch closing prices from backend
     fetchClosingPrices();
+    fetchStkData();
   }, []);
 
   const fetchClosingPrices = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/getClosingPrices', {
+      const response = await fetch('http://127.0.0.1:8000/getPrices', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -61,7 +66,22 @@ const Main = () => {
         body: JSON.stringify({ stk_id: 2 }), // default stk_id as 2
       });
       const data = await response.json();
-      setClosingPrices(data);
+      setPrices(data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+  const fetchStkData = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:8000/getStockInfo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ stk_id: 2 }), // default stk_id as 2
+      });
+      const data = await response.json();
+      setStockInfo(data);
     } catch (error) {
       console.error('Error:', error);
     }
@@ -69,23 +89,50 @@ const Main = () => {
 
   useEffect(() => {
     // Prepare data for chart
-    const labels = closingPrices.map((price, index) => price.Date);// Assuming each price corresponds to one label
-    const data = closingPrices.map(price => parseFloat(price['Close/Last'])); // Extract closing prices and convert to numbers
-    console.log(data)
-    console.log(labels)
+    const labels = Prices.map((price, index) => price.Date);// Assuming each price corresponds to one label
+    const close_data = Prices.map(price => parseFloat(price['Close'])); // Extract closing prices and convert to numbers
+    const open_data = Prices.map(price => parseFloat(price['Open'])); // Extract closing prices and convert to numbers
+    const high_data = Prices.map(price => parseFloat(price['High'])); // Extract closing prices and convert to numbers
+    const low_data = Prices.map(price => parseFloat(price['Low'])); // Extract closing prices and convert to numbers
+
     setChartData({
       labels: labels,
       datasets: [
         {
           label: 'Closing Prices',
-          data: data,
+          data: close_data,
           fill: false,
-          borderColor: 'rgb(75, 192, 192)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
           tension: 0.1
-        }
+        },
+        {
+          label: 'Opening Prices',
+          data: open_data,
+          fill: false,
+          borderColor: 'rgba(255, 99, 132, 1)',
+          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          tension: 0.1
+        },
+        {
+          label: 'High',
+          data: high_data,
+          fill: false,
+          borderColor: 'rgba(54, 162, 235, 1)',
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          tension: 0.1
+        },
+        {
+          label: 'Low',
+          data: low_data,
+          fill: false,
+          borderColor: 'rgba(255, 206, 86, 1)',
+          backgroundColor: 'rgba(255, 206, 86, 0.2)',
+          tension: 0.1
+        },
       ]
     });
-  }, [closingPrices]);
+  }, [Prices]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -98,7 +145,10 @@ const Main = () => {
         body: JSON.stringify({ quantity, stk_id: 2 }), // static stock_id as 1
       });
       const data = await response.json();
-      setRisk(data.risk);
+      setVarCov(data.portfolio_var_covariance);
+      setVarCor(data.portfolio_var_correlation);
+      setRiskCov(data.risk_covariance);
+      setRiskCor(data.risk_correlation);
       setPnl(data.pnl);
     } catch (error) {
       console.error('Error:', error);
@@ -106,10 +156,11 @@ const Main = () => {
   };
 
   return (
-    <Tabs>
+    <Tabs className='tabs'>
       <TabList>
         <Tab>Risk Calculation</Tab>
         <Tab>Buying Stock</Tab>
+        <Tab>Stock Graph</Tab>
         <Tab>Stock Information</Tab>
       </TabList>
 
@@ -126,9 +177,12 @@ const Main = () => {
             </label>
             <button type="submit">Submit</button>
           </form>
-          {risk && pnl && (
+          {risk_cov && risk_cov && var_portfolio_cov && var_portfolio_cor && pnl && (
             <div>
-              <p>Risk: {risk}</p>
+              <p>Risk using Covariance: {risk_cov}</p>
+              <p>Risk using Correlation: {risk_cor}</p>
+              <p>Portfolio Variance using Covariance: {var_portfolio_cov}</p>
+              <p>Portfolio Variance using Correlation: {var_portfolio_cor}</p>
               <p>PnL: {pnl}</p>
             </div>
           )}
@@ -155,14 +209,23 @@ const Main = () => {
       
       <TabPanel>
         {/* Contents for Stock Information tab */}
-        <h2>Stock Information</h2>
         {/* Render line chart */}
-        {closingPrices.length > 0 && (
+        {Prices.length > 0 && (
           <div className="chart-container">
             <Line data={chartData} />
           </div>
         )}
       </TabPanel>
+      <TabPanel>
+      {/* Render stock information */}
+      <div>
+        {Object.entries(stockinfo).map(([attribute, value]) => (
+          <div key={attribute}>
+            <strong>{attribute}: </strong> {value}
+          </div>
+        ))}
+      </div>
+    </TabPanel>
     </Tabs>
   );
 };
