@@ -27,6 +27,12 @@ urlpatterns = [
     path('getCurrentPNL',getCurrentPNL),
     path('getRiskandPNL',getRiskandPNL),
     path('getPrices', getPrices),
-    path('buyStock', buyStock),
     path('getStockInfo', getStockInfo),
+    # path('getClosingPrices', getClosingPrices),
+    path('buyStock', buyStock),
+    path('login/', login),
+    path('signup/', signup),
+    path('getUserlist', getUserStockList),
+    path('getTxnlist', getTxnList),
+    path('getPnllist', getPnlList)
 ]

@@ -8,11 +8,15 @@ from . utils import *
 import datetime
 from django.db.models import Sum
 import pandas as pd
+from django.contrib.auth import authenticate, login
 from django.http import JsonResponse
+from django.core.serializers import serialize
+from django.forms.models import model_to_dict
 # Create your views here.
 from rest_framework import status
 from django.contrib.auth.hashers import make_password, check_password
 import yfinance as yahooFinance
+import json
 
 import json
 
@@ -22,15 +26,45 @@ def login(request):
     if request.method == 'POST':
         username = request.data.get('username')
         password = request.data.get('password')
-        # hashed_password=make_password(password)
-        userdata=Users.objects.filter(user_name=username).values()
+        userdata= User.objects.filter(user_name=username).values()
+        user_data=User.objects.get(user_name=username)
+        user =  json.dumps(model_to_dict(user_data))
         if len(userdata)==0 :
             print("no user")
             return Response({'message': 'User does not exist'}, status=status.HTTP_400_BAD_REQUEST)
-        if (password==userdata[0]['user_pwd']):
-            return Response({'message': 'Login successful'})
+        if (check_password(password,userdata[0]['user_pwd'])):
+            # return Response({'message': 'Login successful'})
+            # print(user['user_name']) 
+            return JsonResponse({'message': 'Login successful','user': user})
         else:
             return Response({'message': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+
+
+@api_view(['POST'])
+def signup(request):
+    if request.method == 'POST':
+        username = request.data.get('username')
+        password = request.data.get('password')
+        email=request.data.get('email')
+        confirm_pwd=request.data.get('confirm_password')
+        # 
+        print(username, password, email, confirm_pwd)
+        userdata=User.objects.filter(user_name=username).values()
+        print(len(userdata))
+        if len(userdata)>0 :
+            print("already a user----------")
+            return Response({'message': 'Useename taken'}, status=status.HTTP_400_BAD_REQUEST)
+        if (password!=confirm_pwd):
+            return Response({'message': 'Password do not match'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        hashed_password=make_password(password)
+        user=User(user_name=username, user_pwd=hashed_password, user_email=email)
+        user.save()
+        return Response({'message': 'Login successful'})
+            
 
     
 
@@ -70,9 +104,35 @@ def getStockInfo(request):
 
 @api_view(['GET'])
 def getstocklist(request):
-    data = Stocks.objects.all()
-    stocks = StocksSerializer(data,many=True)
+    data =pd.read_csv("D:/desshaw/project/hypothetical-trade-analyzer/csv_files/Stocks.csv")
+    stocks =StocksSerializer(data,many=True)
     return Response(stocks.data)
+
+
+@api_view(['GET'])
+def getUserStockList(request):
+    user=request.data.get('user')#get username
+    data =Positiontable.objects.objects.filter(user=user)
+    stocks=User_StockSerializer(data, many=False)
+    return Response(stocks.data)
+
+
+@api_view(['GET'])
+def getTxnList(request):
+    data =Transactiontable.objects.all().values()
+    txn =TransactiontableSerializer(data,many=False)
+    return Response(txn.data)
+
+
+
+@api_view(['GET'])
+def getPnlList(request):
+    data =Pnltable.objects.all().values()
+    pnl =PnltableSerializer(data,many=True)
+    return Response(pnl.data)
+
+
+
 
 @api_view(['GET'])
 def getTransactionHis(request):
@@ -157,6 +217,10 @@ def buyStock(request):
     pnl_obj.date=cur_date
     pnl_obj.save()
     return Response({"message":"data updated successfully"})
+
+
+
+
 
 @api_view(['GET'])
 def getCurrentPosition(request,stock_name):

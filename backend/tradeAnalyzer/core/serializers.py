@@ -26,3 +26,8 @@ class Stock_pricesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stock_prices
         fields = '__all__'
+
+class User_StockSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Positiontable
+        fields=('stk_id', 'psn_qty')
