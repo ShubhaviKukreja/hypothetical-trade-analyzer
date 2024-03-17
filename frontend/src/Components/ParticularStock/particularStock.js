@@ -14,7 +14,7 @@ const Main = () => {
   const [var_portfolio_cov, setVarCov] = useState('');
   const [var_portfolio_cor, setVarCor] = useState('');
   const [pnl, setPnl] = useState('');
-  const [closingPrices, setClosingPrices] = useState([]);
+  const [Prices, setPrices] = useState([]);
   const [chartData, setChartData] = useState({});
   const [quantity2, setQuantity2] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -51,7 +51,7 @@ const Main = () => {
 
   const fetchClosingPrices = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/getClosingPrices', {
+      const response = await fetch('http://127.0.0.1:8000/getPrices', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ const Main = () => {
         body: JSON.stringify({ stk_id: 2 }), // default stk_id as 2
       });
       const data = await response.json();
-      setClosingPrices(data);
+      setPrices(data);
     } catch (error) {
       console.error('Error:', error);
     }
@@ -67,23 +67,50 @@ const Main = () => {
 
   useEffect(() => {
     // Prepare data for chart
-    const labels = closingPrices.map((price, index) => price.Date);// Assuming each price corresponds to one label
-    const data = closingPrices.map(price => parseFloat(price['Close/Last'])); // Extract closing prices and convert to numbers
-    console.log(data)
-    console.log(labels)
+    const labels = Prices.map((price, index) => price.Date);// Assuming each price corresponds to one label
+    const close_data = Prices.map(price => parseFloat(price['Close'])); // Extract closing prices and convert to numbers
+    const open_data = Prices.map(price => parseFloat(price['Open'])); // Extract closing prices and convert to numbers
+    const high_data = Prices.map(price => parseFloat(price['High'])); // Extract closing prices and convert to numbers
+    const low_data = Prices.map(price => parseFloat(price['Low'])); // Extract closing prices and convert to numbers
+
     setChartData({
       labels: labels,
       datasets: [
         {
           label: 'Closing Prices',
-          data: data,
+          data: close_data,
           fill: false,
-          borderColor: 'rgb(75, 192, 192)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
           tension: 0.1
-        }
+        },
+        {
+          label: 'Opening Prices',
+          data: open_data,
+          fill: false,
+          borderColor: 'rgba(255, 99, 132, 1)',
+          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          tension: 0.1
+        },
+        {
+          label: 'High',
+          data: high_data,
+          fill: false,
+          borderColor: 'rgba(54, 162, 235, 1)',
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          tension: 0.1
+        },
+        {
+          label: 'Low',
+          data: low_data,
+          fill: false,
+          borderColor: 'rgba(255, 206, 86, 1)',
+          backgroundColor: 'rgba(255, 206, 86, 0.2)',
+          tension: 0.1
+        },
       ]
     });
-  }, [closingPrices]);
+  }, [Prices]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -161,7 +188,7 @@ const Main = () => {
         {/* Contents for Stock Information tab */}
         <h2>Stock Information</h2>
         {/* Render line chart */}
-        {closingPrices.length > 0 && (
+        {Prices.length > 0 && (
           <div className="chart-container">
             <Line data={chartData} />
           </div>

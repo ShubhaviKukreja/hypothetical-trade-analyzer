@@ -86,13 +86,19 @@ def compute_pnl(user, stk_id, qty, cur_stock_price):
     pnl=(cur_stock_price-weighed_price)*overall_qty
     return pv, weighed_price, pnl
 
-def ClosingPrices(request):
-    stock_df=pd.read_csv("/Users/prajaktadarade/Documents/Deshaw/Hypothetical Trade Analyzer/hypothetical-trade-analyzer/csv_files/Stock_prices.csv")
-    ret = stock_df.loc[stock_df['stk_id']==request.data['stk_id']][:10]
+def StockPrices(request):
+    stk=Stocks.objects.filter(stk_id=request.data['stk_id'])[0]
+    TS=stk.stk_TickerSym
+    recent_stocks_df = yahooFinance.download(TS, period="1mo")
+
     formatted_prices = []
 
-    for _,price in ret.iterrows():
-        formatted_prices.append({'Date': price.Date, 'Close/Last': float(price['Close/Last'].replace('$',''))})  # Adjust this based on your actual data structure
+    for index,price in recent_stocks_df.iterrows():
+        formatted_prices.append({'Date': index, 'Close':price['Close'],
+                                 'Open':price['Open'],
+                                 'High':price['High'],
+                                 'Low':price['Low'],
+                                 })  # Adjust this based on your actual data structure
 
     return formatted_prices
 

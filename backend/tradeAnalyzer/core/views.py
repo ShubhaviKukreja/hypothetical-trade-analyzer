@@ -166,8 +166,8 @@ def getCurrentPosition(request,stock_name):
     return Response(position.data)
 
 @api_view(['POST'])
-def getClosingPrices(request):
-    stk_prices=ClosingPrices(request)
+def getPrices(request):
+    stk_prices=StockPrices(request)
     return JsonResponse(stk_prices, safe=False)
 
 
