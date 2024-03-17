@@ -33,8 +33,7 @@ const Login = () => {
   };
 
   return (
-    <div className="container">
-      <div className="wrapper">
+      <div className="wrapper" style={{backgroundColor: 'blue'}}>
         {loggedIn ? (
           // Render the Main component when logged in
           <Main />
@@ -77,7 +76,6 @@ const Login = () => {
           </form>
         )}
       </div>
-    </div>
   );
 };
 

@@ -3,8 +3,13 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import { Line } from 'react-chartjs-2';
 import "./particularStock.css";
-import {CategoryScale} from 'chart.js'; 
-import { Chart as ChartJS } from "chart.js/auto";
+// import {CategoryScale} from 'chart.js'; 
+// import { Chart as ChartJS } from "chart.js/auto";
+
+
+
+// import { Layout, Menu, Breadcrumb, theme } from "antd";
+// const {Header , Content , Footer , Sider} = Layout;
 
 // Line.register(CategoryScale);
 const Main = () => {

@@ -1,12 +1,13 @@
 import React from 'react'
 import './SignUp.css'
-import Login from '../../../../src/Components/Login/login'
+import Login from '../../../src/Components/Login/login'
 import { FaUser,FaLock , FaPhoneAlt , FaUnlock} from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
+import image1 from '../Assests/yes';
 
 const SignUp = () => {
   return (
-    <div className='wrapper'>
+    <div className='wrapper' style={{backgroundColor: 'blue'}}>
         <form action="">
             <h1>Create account</h1>
             <div className='input-box'>
