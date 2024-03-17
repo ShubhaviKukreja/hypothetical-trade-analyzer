@@ -64,13 +64,11 @@ def getCurrentPNL(request):
 def getRiskandPNL(request):
     data=request.data
     request.user=Users.objects.all()[0]
-    risk,_=compute_risk(request)
+    portfolio_var_covariance, portfolio_var_correlation, risk_covariance, risk_correlation=compute_risk(request)
     stk=Stocks.objects.get(stk_id=data['stk_id'])
     current_positions = Stock_prices.objects.filter(stk_id=stk)[0].stk_price
-
     _,_,pnl=compute_pnl(request.user,data['stk_id'],data['quantity'],current_positions)
-
-    return Response({"risk":risk,"pnl":pnl})
+    return Response({"portfolio_var_covariance":portfolio_var_covariance, "portfolio_var_correlation":portfolio_var_correlation, "risk_covariance":risk_covariance, "risk_correlation":risk_correlation,"pnl":pnl})
 
 @api_view(['POST'])
 def addStock(request):
