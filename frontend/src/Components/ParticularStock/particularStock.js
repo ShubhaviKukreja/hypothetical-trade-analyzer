@@ -19,6 +19,7 @@ const Main = () => {
   const [quantity2, setQuantity2] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [stockinfo, setStockInfo] = useState({});
 
   const handleSubmit2 = async (e) => {
     e.preventDefault();
@@ -47,6 +48,7 @@ const Main = () => {
   useEffect(() => {
     // Fetch closing prices from backend
     fetchClosingPrices();
+    fetchStkData();
   }, []);
 
   const fetchClosingPrices = async () => {
@@ -60,6 +62,21 @@ const Main = () => {
       });
       const data = await response.json();
       setPrices(data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+  const fetchStkData = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:8000/getStockInfo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ stk_id: 2 }), // default stk_id as 2
+      });
+      const data = await response.json();
+      setStockInfo(data);
     } catch (error) {
       console.error('Error:', error);
     }
@@ -138,6 +155,7 @@ const Main = () => {
       <TabList>
         <Tab>Risk Calculation</Tab>
         <Tab>Buying Stock</Tab>
+        <Tab>Stock Graph</Tab>
         <Tab>Stock Information</Tab>
       </TabList>
 
@@ -157,7 +175,7 @@ const Main = () => {
           {risk_cov && risk_cov && var_portfolio_cov && var_portfolio_cor && pnl && (
             <div>
               <p>Risk using Covariance: {risk_cov}</p>
-              <p>Risk using Correlation: {risk_cov}</p>
+              <p>Risk using Correlation: {risk_cor}</p>
               <p>Portfolio Variance using Covariance: {var_portfolio_cov}</p>
               <p>Portfolio Variance using Correlation: {var_portfolio_cor}</p>
               <p>PnL: {pnl}</p>
@@ -186,7 +204,6 @@ const Main = () => {
       
       <TabPanel>
         {/* Contents for Stock Information tab */}
-        <h2>Stock Information</h2>
         {/* Render line chart */}
         {Prices.length > 0 && (
           <div className="chart-container">
@@ -194,6 +211,16 @@ const Main = () => {
           </div>
         )}
       </TabPanel>
+      <TabPanel>
+      {/* Render stock information */}
+      <div>
+        {Object.entries(stockinfo).map(([attribute, value]) => (
+          <div key={attribute}>
+            <strong>{attribute}: </strong> {value}
+          </div>
+        ))}
+      </div>
+    </TabPanel>
     </Tabs>
   );
 };

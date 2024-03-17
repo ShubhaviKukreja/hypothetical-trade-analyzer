@@ -156,7 +156,7 @@ def buyStock(request):
     pnl_obj.pnl=pnl
     pnl_obj.date=cur_date
     pnl_obj.save()
-    return Response("data updated successfully")
+    return Response({"message":"data updated successfully"})
 
 @api_view(['GET'])
 def getCurrentPosition(request,stock_name):
