@@ -4,6 +4,8 @@ import Row from 'react-bootstrap/Row';
 import Tab from 'react-bootstrap/Tab';
 import React, { useState, useEffect } from 'react';
 import 'react-tabs/style/react-tabs.css';
+import "chart.js/auto";
+
 import { Line } from 'react-chartjs-2';
 import "./particularStock.css";
 import { Button, Result, Form, Table, InputNumber, Tag, Space } from 'antd';
@@ -87,7 +89,7 @@ function LeftTabsExample() {
 
     useEffect(() => {
         // Prepare data for chart
-        const labels = Prices.map((price, index) => price.Date);// Assuming each price corresponds to one label
+        const labels = Prices.map((price, index) => price['Date'].slice(0, -9));// Assuming each price corresponds to one label
         const close_data = Prices.map(price => parseFloat(price['Close'])); // Extract closing prices and convert to numbers
         const open_data = Prices.map(price => parseFloat(price['Open'])); // Extract closing prices and convert to numbers
         const high_data = Prices.map(price => parseFloat(price['High'])); // Extract closing prices and convert to numbers
@@ -129,7 +131,7 @@ function LeftTabsExample() {
                     tension: 0.1
                 },
             ]
-        });
+        })
     }, [Prices]);
 
     const handleSubmit = async (e) => {
@@ -157,75 +159,26 @@ function LeftTabsExample() {
     // Table fourth
     const columns = [
         {
-            title: 'Name',
+            title: 'Stock Attribute Name',
             dataIndex: 'name',
             key: 'name',
-            render: (text) => <Link>{text}</Link>,
         },
+    
         {
-            title: 'Age',
-            dataIndex: 'age',
-            key: 'age',
-        },
-        {
-            title: 'Address',
-            dataIndex: 'address',
-            key: 'address',
-        },
-        {
-            title: 'Tags',
-            key: 'tags',
-            dataIndex: 'tags',
-            render: (tags) => (
-                <span>
-                    {tags.map((tag) => {
-                        let color = tag.length > 5 ? 'geekblue' : 'green';
-                        if (tag === 'loser') {
-                            color = 'volcano';
-                        }
-                        return (
-                            <Tag color={color} key={tag}>
-                                {tag.toUpperCase()}
-                            </Tag>
-                        );
-                    })}
-                </span>
-            ),
-        },
-        {
-            title: 'Action',
-            key: 'action',
-            render: (_, record) => (
-                <Space size="middle">
-                    <Link>Invite {record.name}</Link>
-                    <Link>Delete</Link>
-                </Space>
-            ),
+            title: 'Value',
+            dataIndex: 'val',
+            key: 'val',
         },
     ];
-    const data = [
-        {
-            key: '1',
-            name: 'John Brown',
-            age: 32,
-            address: 'New York No. 1 Lake Park',
-            tags: ['nice', 'developer'],
-        },
-        {
-            key: '2',
-            name: 'Jim Green',
-            age: 42,
-            address: 'London No. 1 Lake Park',
-            tags: ['loser'],
-        },
-        {
-            key: '3',
-            name: 'Joe Black',
-            age: 32,
-            address: 'Sydney No. 1 Lake Park',
-            tags: ['cool', 'teacher'],
-        },
-    ];
+    const data=[]
+    let i=0;
+    for (const [key, value] of Object.entries(stockinfo)) {
+        data.push({
+            key: i,
+            name: key,
+            val: value,
+        });
+    }
     return (
         <Tab.Container id="left-tabs-example" defaultActiveKey="first" >
             <Row>
@@ -254,21 +207,12 @@ function LeftTabsExample() {
                                     <Form.Item>
                                         <InputNumber style={{ width: '50%' }}
                                             value={quantity}
-                                            onChange={(e) => setQuantity(e.target.value)}
+                                            onChange={(e) => {console.log(e);setQuantity(e)}}
                                         />
                                     </Form.Item>
-                                    <Button type="primary" style={{ fontSize: '100%', backgroundColor: '#1f2fa5' }}>Submit</Button>
+                                    <Button type="primary" style={{ fontSize: '100%', backgroundColor: '#1f2fa5' }} onClick={handleSubmit}>Submit</Button>
                                 </Form>
-                                {risk_cov && risk_cov && var_portfolio_cov && var_portfolio_cor && pnl && (
-                                    <div>
-                                        <p>Risk using Covariance: {risk_cov}</p>
-                                        <p>Risk using Correlation: {risk_cor}</p>
-                                        <p>Portfolio Variance using Covariance: {var_portfolio_cov}</p>
-                                        <p>Portfolio Variance using Correlation: {var_portfolio_cor}</p>
-                                        <p>Quantity: {quantity}</p>
-                                        <p>PnL: {pnl}</p>
-                                    </div>
-                                )}
+                               
                             </div>
                             <div style={{marginTop: '10%'}}>
                                 <p><b>Risk using Covariance :- {risk_cov}</b></p>
@@ -289,17 +233,17 @@ function LeftTabsExample() {
                                     <InputNumber style={{ width: '50%' }}
                                         type="number"
                                         value={quantity2}
-                                        onChange={(e) => setQuantity2(e.target.value)}
+                                        onChange={(e) => setQuantity2(e)}
                                     />
                                 </Form.Item>
 
-                                <Button type="primary" style={{ fontSize: '100%', backgroundColor: '#1f2fa5' }} disabled={loading}>Submit</Button>
+                                <Button type="primary" style={{ fontSize: '100%', backgroundColor: '#1f2fa5' }} disabled={loading}onClick={handleSubmit2}>Submit</Button>
                             </Form>
                             {successMessage && <p>{successMessage}</p> && (
                                 <Result
                                     status="success"
                                     title="Successfully Calculated !"
-                                    subTitle="Order number: 2017182818828182881 Cloud server configuration takes 1-5 minutes, please wait."
+                                    subTitle="The Transaction has been successfully Updated."
                                     extra={[
                                         <Button style={{ backgroundColor: '#1f2fa5' }} key="console">
                                             Done
@@ -308,17 +252,7 @@ function LeftTabsExample() {
                                     ]}
                                 />
                             )}
-                            <Result
-                                status="success"
-                                title="Successfully Calculated !"
-                                subTitle="Order number: 2017182818828182881 Cloud server configuration takes 1-5 minutes, please wait."
-                                extra={[
-                                    <Button style={{ backgroundColor: '#1f2fa5' }} >
-                                        Done
-                                    </Button>,
-                                    <Button key="buy"> Calculate Again</Button>,
-                                ]}
-                            />
+                            
                         </Tab.Pane>
                         <Tab.Pane eventKey="third">
                             {/* Contents for Stock Information tab */}
@@ -330,14 +264,7 @@ function LeftTabsExample() {
                             )}
                         </Tab.Pane>
                         <Tab.Pane eventKey='fourth'>
-                            {/* Render stock information */}
-                            <div>
-                                {Object.entries(stockinfo).map(([attribute, value]) => (
-                                    <div key={attribute}>
-                                        <strong>{attribute}: </strong> {value}
-                                    </div>
-                                ))}
-                            </div>
+                
                             <Table
                                 columns={columns}
                                 pagination={{

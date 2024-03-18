@@ -1,6 +1,6 @@
 import React from 'react'
 import './SignUp.css'
-import Login from '../Login/login';
+import Login from '../Login/login.jsx';
 import Main from '../MainPage/mainpage';
 import { useState } from 'react';
 import { FaUser,FaLock } from "react-icons/fa";
