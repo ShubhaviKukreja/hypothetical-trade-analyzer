@@ -1,7 +1,7 @@
 import './App.css';
 import Login from '../src/Components/Login/login.jsx'
 import SignUp from '../src/Components/SignUp/SignUp.jsx'
-// import StockList from './Components/MainPage/mainpage.jsx'
+import StockList from './Components/MainPage/mainpage.jsx'
 // import Main from '../src/Components/ParticularStock/particularStock.js'
 import{
   BrowserRouter as Router , Routes,Route
