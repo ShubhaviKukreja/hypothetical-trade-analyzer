@@ -140,12 +140,12 @@ def getTransactionHis(request):
     transaction = TransactiontableSerializer(data,many=True)
     return Response(transaction.data)
 
+
 @api_view(['GET'])
 def getPositionInfo(request):
     data = Positiontable.objects.filter(user=request.user)
     position = PositiontableSerializer(data,many=True)
     return Response(position.data)
-
 
 @api_view(['GET'])
 def getCurrentPNL(request):
@@ -161,7 +161,12 @@ def getRiskandPNL(request):
     stk=Stocks.objects.get(stk_id=data['stk_id'])
     current_positions = Stock_prices.objects.filter(stk_id=stk)[0].stk_price
     _,_,pnl=compute_pnl(request.user,data['stk_id'],data['quantity'],current_positions)
-    return Response({"portfolio_var_covariance":portfolio_var_covariance, "portfolio_var_correlation":portfolio_var_correlation, "risk_covariance":risk_covariance, "risk_correlation":risk_correlation,"pnl":pnl})
+    request.data['quantity']=0
+    portfolio_var_covariance_old, portfolio_var_correlation_old, risk_covariance_old, risk_correlation_old=compute_risk(request)
+    _,_,pnl_old=compute_pnl(request.user,data['stk_id'],data['quantity'],current_positions)
+    return Response({"portfolio_var_covariance":portfolio_var_covariance, "portfolio_var_correlation":portfolio_var_correlation, "risk_covariance":risk_covariance, "risk_correlation":risk_correlation,"pnl":pnl,
+                     "portfolio_var_covariance_old":portfolio_var_covariance_old, "portfolio_var_correlation_old":portfolio_var_correlation_old, "risk_covariance_old":risk_covariance_old, "risk_correlation_old":risk_correlation_old,"pnl_old":pnl_old
+                     })
 
 @api_view(['POST'])
 def addStock(request):
@@ -183,15 +188,23 @@ def buyStock(request):
     cur_date=datetime.date.today()
     cur_stock_price=(Stock_prices.objects.filter(stk_id=stockdata['stk_id'])[0]).stk_price
     #adding current transaction to transaction table
+    print("cur_stock_price:",cur_stock_price)
     stk=Stocks.objects.filter(stk_id=stockdata['stk_id'])[0]
     request.user=Users.objects.all()[0]
     # txn_obj=Transactiontable(date=cur_date, stk_id=stk, user=request.user, txn_qty=qty, txn_price=cur_stock_price, market_value=qty*cur_stock_price, transaction_type=0) #here 0 denotes that type is buy
-    dt={"date":cur_date, "stk_id":stk, "user":request.user, "txn_qty":qty, "txn_price":cur_stock_price, "market_value":qty*cur_stock_price, "transaction_type":0}
-    txn_obj = TransactiontableSerializer(data=dt)
-    if txn_obj.is_valid():
+    dt={"date":cur_date, "stk_id":stk.pk, "user":request.user.pk, "txn_qty":qty, "txn_price":cur_stock_price, "market_value":qty*cur_stock_price, "transaction_type":0}
+    txn_obj = TransactiontableSerializer(data=dt,many=False)
+    if not txn_obj.is_valid():
+        errors = txn_obj.errors
+
+        for field, error_list in errors.items():
+            # Field-specific error handling
+            for error in error_list:
+                print(f"Error in field '{field}': {error}")
+
+    else:
         txn_obj.save()
-        # return Response("stock data added successfully")
-    # txn_obj.save()
+
 
     #adding to position table
     pv, weighed_price, pnl=compute_pnl(request.user, stockdata['stk_id'], qty, cur_stock_price)
@@ -199,15 +212,31 @@ def buyStock(request):
     # psn_obj=Positiontable(user=request.user,stk_id=stockdata['stk_id'], psn_qty=qty, last_price=cur_stock_price,weighed_price=weighed_price, date=cur_date, pv=pv)
     psn_obj=Positiontable.objects.filter(user=request.user, stk_id=stockdata['stk_id'])
     if len(psn_obj)==0:
-        psn_obj=Positiontable(user=request.user,stk_id=stockdata['stk_id'], psn_qty=qty,weighed_price=weighed_price, date=cur_date, pv=pv)
+        #create new entry in pos table using serializer
+        pos_serializer=PositiontableSerializer(
+            data={"user":request.user.pk,"stk_id":stk.pk,"psn_qty":qty,"weighed_price":weighed_price,"date":cur_date,"pv":pv}
+        )
+        pos_serializer.initial_data
+        if pos_serializer.is_valid():
+            pos_serializer.save()
+        else:
+            print("ERR1")
+            print(pos_serializer.errors)
+        #get the new position object
+        psn_obj=Positiontable.objects.filter(user=request.user, stk_id=stockdata['stk_id'])
     else:
-        psn_obj=psn_obj[0]
-    psn_obj.weighed_price=weighed_price
-    psn_obj.pv=pv
+        #update the existing position object using serializer
+        pos_serializer=PositiontableSerializer(
+            psn_obj[0],data={"psn_qty":psn_obj[0].psn_qty+int(qty),"weighed_price":(int)(weighed_price),"date":cur_date,"pv":pv}
+        )
+        if pos_serializer.is_valid():
+            pos_serializer.save()
+        else:
+            print("ERR2")
+            print(pos_serializer.errors)
+        #get the new position object
+        psn_obj=Positiontable.objects.filter(user=request.user, stk_id=stockdata['stk_id'])
 
-    psn_obj.psn_qty+=int(qty)
-
-    #adding into pnl table
     pnl_obj=Pnltable.objects.filter(user=request.user, stk_id=stockdata['stk_id'])
     if len(pnl_obj)==0:
         pnl_obj=Pnltable(user=request.user,pnl=pnl, date=cur_date, stk_id=stockdata['stk_id'])
@@ -216,10 +245,17 @@ def buyStock(request):
     pnl_obj.pnl=pnl
     pnl_obj.date=cur_date
     pnl_obj.save()
-    return Response({"message":"data updated successfully"})
-
-
-
+    psn_obj=Positiontable.objects.filter(user=request.user, stk_id=stockdata['stk_id'])
+    # print(psn_obj.date)
+    psn_obj=PositiontableSerializer(instance=psn_obj,many=True)
+    # if psn_obj.is_valid():
+    #     print("YESS")
+    # print("qqYESS")
+    
+    position_new=Positiontable.objects.filter(user=request.user)
+    position_new=PositiontableSerializer(instance=position_new,many=True)
+    return Response({"message":"data updated successfully","stk_psn":psn_obj.data,"position":position_new.data})
+    # return Response({"message":"data updated successfully"})
 
 
 @api_view(['GET'])

@@ -48,19 +48,19 @@ def compute_risk(request):
         if i[0]==new_stock_name:
             i[1]+=float(new_quantity) #update the quantity of stock if it already exists in the position
             break
-    
     for i,stk_id in enumerate(stk_ids):
-        if(i==0):
-            close_name='Close'
-        else:
-            f'Close.{i}'
-            ret = recent_stocks_df[close_name]
-        ret = recent_stocks_df[close_name]
+        # if(i==0):
+        #     close_name='Close'
+        # else:
+        # close_name=f'Close.{i}'
+            # ret = recent_stocks_df[close_name][TickerSyms]
+        ret = recent_stocks_df['Close'][TickerSyms[i]]
         shifted=ret.shift(1) #shift the stock prices by 1 day
         shifted = shifted.interpolate(method='linear', axis=0, limit_direction='forward')
         #get percentage change in prices of this stock for last 5 days
         l1=list(ret)
         l2=list(shifted)
+
         if(len(l2)!=1):
             l2[0]=l2[1]
         else:
@@ -78,7 +78,6 @@ def compute_risk(request):
 def compute_pnl(user, stk_id, qty, cur_stock_price):
 
     psn_obj=(Positiontable.objects.filter(user=user, stk_id=stk_id)[0])
-    print(psn_obj)
     last_pv=(psn_obj).pv
     pv=int(last_pv) + int(cur_stock_price) * int(qty)
     overall_qty=(psn_obj).psn_qty
