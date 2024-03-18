@@ -349,16 +349,13 @@ function LeftTabsExample() {
                                             Done
                                         </Button>,
                                         <Button key="buy" onClick={ () => setSuccessMessage(1-successMessage) }> Calculate Again</Button>,
-                                        // <div>
-                                        // <h3>Current Stock Information</h3>
-                                        // <StockInfoTable data={new_stk_pos} />
-                                        // <h3>Updated Position Table</h3>
-                                        // <StockInfoTable data={new_pos} />
-                                        // </div>
-                                        // <div>
-                                        // <h3>Stock Information</h3>
-                                        // <StockInfoTable data={new_stk_pos} />
-                                        // </div>
+                                        <div>
+                                        <h3>Current Stock Information</h3>
+                                        <StockInfoTable data={new_stk_pos} />
+                                        <h3>Updated Position Table</h3>
+                                        <StockInfoTable data={new_pos} />
+                                        </div>
+                                       
                                     ]}
                                 />
                             )
