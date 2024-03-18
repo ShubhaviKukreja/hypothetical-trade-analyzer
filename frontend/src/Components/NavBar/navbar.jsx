@@ -18,8 +18,8 @@ function navbar() {
             style={{ maxHeight: '100px' }}
             navbarScroll
           >
-            <Nav.Link href="#action1" style={{color: 'white'}}>Home</Nav.Link>
-            <Nav.Link href="#action2" style={{color: 'white'}}>Link</Nav.Link>
+            <Nav.Link href="#action1" style={{color: 'white'}}>Profile</Nav.Link>
+            <Nav.Link href="#action2" style={{color: 'white'}}>History</Nav.Link>
             {/* <NavDropdown title="Link" id="navbarScrollingDropdown">
               <NavDropdown.Item href="#action3">Action</NavDropdown.Item>
               <NavDropdown.Item href="#action4">
@@ -32,7 +32,7 @@ function navbar() {
             </NavDropdown> */}
           </Nav>
           <Form className="d-flex">
-            <Button variant="danger">Search</Button>
+            <Button variant="danger">LogOut</Button>
           </Form>
         </Navbar.Collapse>
       </Container>

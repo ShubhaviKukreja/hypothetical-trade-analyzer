@@ -180,7 +180,9 @@ function LeftTabsExample() {
         });
     }
     return (
-        <Tab.Container id="left-tabs-example" defaultActiveKey="first" >
+        <div>
+            <h2 style={{textAlign: 'center'}}> Stock Name </h2>
+            <Tab.Container id="left-tabs-example" defaultActiveKey="first" >
             <Row>
                 <Col sm={3}>
                     <Nav variant="pills" className="flex-column">
@@ -222,12 +224,12 @@ function LeftTabsExample() {
                                 <p><b>Quantity :- {quantity}</b></p>
                                 <p><b>PnL :- {pnl}</b></p>
                             </div>
-
+    
                         </Tab.Pane>
                         <Tab.Pane eventKey="second">
                             {/* Contents for Buying Stock tab */}
                             <Form onSubmit={handleSubmit2} style={{ justifyContent: 'center', alignItems: '' }}>
-                                <h1 style={{ textAlign: 'center' }}><b>Buying Stock</b></h1>
+                                <h2 style={{ textAlign: 'center' }}><b>Buying Stock</b></h2>
                                 <h2><b>Quantity</b></h2>
                                 <Form.Item>
                                     <InputNumber style={{ width: '50%' }}
@@ -277,6 +279,8 @@ function LeftTabsExample() {
                 </Col>
             </Row>
         </Tab.Container>
+        </div>
+
     );
 }
 
