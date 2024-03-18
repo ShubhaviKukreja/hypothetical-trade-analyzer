@@ -1,38 +1,5 @@
 import React from 'react'
 import './SignUp.css'
-<<<<<<< HEAD
-import Login from '../../../src/Components/Login/login'
-import { FaUser,FaLock , FaPhoneAlt , FaUnlock} from "react-icons/fa";
-import { MdEmail } from "react-icons/md";
-import image1 from '../Assests/yes';
-
-const SignUp = () => {
-  return (
-    <div className='wrapper' style={{backgroundColor: 'blue'}}>
-        <form action="">
-            <h1>Create account</h1>
-            <div className='input-box'>
-                <input type='text' placeholder='Username' />
-                <FaUser className='icon'/>
-            </div>
-            <div className='input-box'>
-                <input type='text' placeholder='Email' />
-                <MdEmail className='icon'/>
-            </div>
-            <div className='input-box'>
-                <input type='text' placeholder='Mobile Number' />
-                <FaPhoneAlt className='icon'/>
-            </div>
-            <div className='input-box'>
-                <input type='password' placeholder='Password' />
-                <FaLock className='icon'/>
-            </div>
-            <div className='input-box'>
-                <input type='password' placeholder='Confirm Password' />
-                <FaUnlock className='icon'/>
-            </div>
-            <button type='submit'>Register</button>
-=======
 import Login from '../Login/login';
 import Main from '../MainPage/mainpage';
 import { useState } from 'react';
@@ -72,7 +39,6 @@ const SignUp = () => {
       await handleSignup();
     };
     // const navigate = useNavigate();
->>>>>>> origin/main
 
     // const handleClick = () => {
     //   navigate('/login');

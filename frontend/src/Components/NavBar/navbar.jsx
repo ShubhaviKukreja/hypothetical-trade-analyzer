@@ -8,7 +8,7 @@ import NavDropdown from 'react-bootstrap/NavDropdown';
 
 function navbar() {
   return (
-    <Navbar expand="lg" bg= "primary"  data-bs-theme= "dark" style={{marginBottom: '10px'}}>
+    <Navbar expand="lg" data-bs-theme= "dark" style={{marginBottom: '10px' , backgroundColor:'#1f2fa5'}}>
       <Container fluid>
         <Navbar.Brand href="#">Hypothetical-trade-analyzer</Navbar.Brand>
         <Navbar.Toggle aria-controls="navbarScroll" />
@@ -18,8 +18,8 @@ function navbar() {
             style={{ maxHeight: '100px' }}
             navbarScroll
           >
-            <Nav.Link href="#action1">Home</Nav.Link>
-            <Nav.Link href="#action2">Link</Nav.Link>
+            <Nav.Link href="#action1" style={{color: 'white'}}>Home</Nav.Link>
+            <Nav.Link href="#action2" style={{color: 'white'}}>Link</Nav.Link>
             {/* <NavDropdown title="Link" id="navbarScrollingDropdown">
               <NavDropdown.Item href="#action3">Action</NavDropdown.Item>
               <NavDropdown.Item href="#action4">
@@ -32,7 +32,7 @@ function navbar() {
             </NavDropdown> */}
           </Nav>
           <Form className="d-flex">
-            <Button variant="outline-warning">Search</Button>
+            <Button variant="danger">Search</Button>
           </Form>
         </Navbar.Collapse>
       </Container>

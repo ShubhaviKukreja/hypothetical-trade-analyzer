@@ -25,7 +25,7 @@ function App() {
 
         </Routes>
       </Router>
-      <Login/>
+      {/* <Login/> */}
       {/* {<StockList/>} */}
       {/* {<Main/>} */}
       {/* <SignUp/> */}
