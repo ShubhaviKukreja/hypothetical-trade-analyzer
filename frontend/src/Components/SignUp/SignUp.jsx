@@ -1,41 +1,116 @@
 import React from 'react'
 import './SignUp.css'
-import Login from '../../../../src/Components/Login/login'
-import { FaUser,FaLock , FaPhoneAlt , FaUnlock} from "react-icons/fa";
-import { MdEmail } from "react-icons/md";
+import Login from '../Login/login.jsx';
+import Main from '../MainPage/mainpage';
+import { useState } from 'react';
+import { FaUser,FaLock } from "react-icons/fa";
+import { useNavigate } from 'react-router-dom';
+// import { MdEmail } from "react-icons/md";
+import axios from 'axios';
 
 const SignUp = () => {
-  return (
-    <div className='wrapper'>
-        <form action="">
-            <h1>Create account</h1>
-            <div className='input-box'>
-                <input type='text' placeholder='Username' />
-                <FaUser className='icon'/>
-            </div>
-            <div className='input-box'>
-                <input type='text' placeholder='Email' />
-                <MdEmail className='icon'/>
-            </div>
-            <div className='input-box'>
-                <input type='text' placeholder='Mobile Number' />
-                <FaPhoneAlt className='icon'/>
-            </div>
-            <div className='input-box'>
-                <input type='password' placeholder='Password' />
-                <FaLock className='icon'/>
-            </div>
-            <div className='input-box'>
-                <input type='password' placeholder='Confirm Password' />
-                <FaUnlock className='icon'/>
-            </div>
-            <button type='submit'>Register</button>
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirm_password, setConfirmpwd] = useState('');
+    const [email, setEmail] = useState('');
+    const [SignedUp, setSignedUp] = useState(false);
+  
+    const handleSignup = async (e) => {
+      if(e)e.preventDefault();
+      
+      try {
+        const response = await axios.post('http://localhost:8000/signup/', {
+          username,
+          password,
+          confirm_password,
+          email
+        });
+        
+        console.log(response.data); // Assuming backend returns some data
+        // Set login status to true after successful login
+        setSignedUp(true);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+  
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      await handleSignup();
+    };
+    // const navigate = useNavigate();
 
-            <div className="register-link">
-                <p> Already have account ? <a href={<Login/>}>Login</a></p>
-            </div>
-        </form>
-    </div>  
-  );
-};
-export default SignUp;
+    // const handleClick = () => {
+    //   navigate('/login');
+    // };
+  
+    return (
+      <div className="container">
+        <div className="wrapper">
+          {SignedUp ? (
+            // Render the Main component when logged in
+            <Main />
+          ) : (
+            // Render the login form when not logged in
+            <form onSubmit={handleSubmit}>
+              <h1>Sign Up</h1>
+              <div className="input-box">
+                <input
+                  type="text"
+                  placeholder="Username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                />
+                <FaUser className="icon" />
+              </div>
+              <div className="input-box">
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <FaLock className="icon" />
+              </div>
+              <div className="input-box">
+                <input
+                  type="password"
+                  placeholder="Confirm Password"
+                  value={confirm_password}
+                  onChange={(e) => setConfirmpwd(e.target.value)}
+                />
+                <FaLock className="icon" />
+              </div>
+              <div className="input-box">
+                <input
+                  type="text"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                <FaUser className="icon" />
+              </div>
+
+              <div className="remember-forget">
+                <label>
+                  <input type="checkbox" /> Remember me?
+                </label>
+                <a href={<Login/>}> Forget password?</a>
+              </div>
+              <button type="submit">Sign Up</button>
+  
+              <div className="register-link">
+                <p>
+                {/* <button onClick={handleClick}>Already have an account? Login</button> */}
+                <a href={<Login/>}>Already have an account? Login</a>
+                </p>
+              </div>
+            </form>
+          )}
+        </div>
+      </div>
+    );
+  };
+  
+  export default SignUp;
+  

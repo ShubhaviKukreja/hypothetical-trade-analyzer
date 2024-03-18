@@ -3,6 +3,7 @@ import datetime
 from django.db.models import Sum
 import pandas as pd
 import numpy as np
+import yfinance as yahooFinance
 
 # Function to calculate covariance matrix
 def calculate_covariance_matrix(returns):
@@ -31,51 +32,46 @@ def compute_transaction_risk(psn_qtys, covariance_matrix, correlation_matrix):
 def compute_risk(request):
     data = Positiontable.objects.filter(user=request.user) #users position
     stk_ids = [entry.stk_id.stk_id for entry in data] #stocks in users position
+    TickerSyms = [entry.stk_id.stk_TickerSym for entry in data] #stocks in users position
     psn_qtys = [[entry.stk_id.stk_id, entry.psn_qty] for entry in data] #quantity of stocks in users position
-    stock_df=pd.read_csv("/Users/prajaktadarade/Documents/Deshaw/Hypothetical Trade Analyzer/hypothetical-trade-analyzer/csv_files/Stock_prices.csv")
+    recent_stocks_df = yahooFinance.download(TickerSyms, period="10d")
     returns=[] 
     new_stock_name = request.data['stk_id'] #input stock 
     new_quantity = request.data['quantity'] #input quantity
+    if new_stock_name not in stk_ids:
+        newTicker=Stocks.objects.filter(stk_id=new_stock_name)[0].stk_TickerSym
+        TickerSyms.append(newTicker)
+        stk_ids.append(new_stock_name)
+        psn_qtys.append([new_stock_name,new_quantity])
 
     for i in psn_qtys:
         if i[0]==new_stock_name:
             i[1]+=float(new_quantity) #update the quantity of stock if it already exists in the position
             break
     
-    for stk_id in stk_ids:
-        ret = stock_df.loc[stock_df['stk_id']==stk_id][:5] #get the last 5 days stock prices
+    for i,stk_id in enumerate(stk_ids):
+        if(i==0):
+            close_name='Close'
+        else:
+            f'Close.{i}'
+            ret = recent_stocks_df[close_name]
+        ret = recent_stocks_df[close_name]
         shifted=ret.shift(1) #shift the stock prices by 1 day
         shifted = shifted.interpolate(method='linear', axis=0, limit_direction='forward')
         #get percentage change in prices of this stock for last 5 days
-        l1=list(ret['Close/Last'])
-        l2=list(shifted['Close/Last'])
+        l1=list(ret)
+        l2=list(shifted)
         if(len(l2)!=1):
             l2[0]=l2[1]
         else:
             l2[0]=0
-        lst = [float(float(ret_val.replace('$', '')) - float(shifted_val.replace('$', ''))) for ret_val, shifted_val in zip(l1, l2)]
+        lst = [float(float(ret_val) - float(shifted_val)) for ret_val, shifted_val in zip(l1, l2)]
         returns.append(lst)
 
-    if new_stock_name not in stk_ids:
-        ret = stock_df.loc[stock_df['stk_id']==new_stock_name][:5]
-        shifted=ret.shift(1)
-        l1=list(ret['Close/Last'])
-        l2=list(shifted['Close/Last'])
-        shifted = shifted.interpolate(method='linear', axis=0, limit_direction='forward')
-        if(len(l2)!=1):
-            l2[0]=l2[1]
-        else:
-            l2[0]=0
-        lst = [float(float(ret_val.replace('$', '')) - float(shifted_val.replace('$', ''))) for ret_val, shifted_val in zip(l1, l2)]        
-        returns.append(lst) 
-        psn_qtys.append([new_stock_name,new_quantity])
 
     covariance_matrix = calculate_covariance_matrix(np.array(returns)) #get covariance matrix 
     correlation_matrix = calculate_correlation_matrix(np.array(returns)) #get correlation matrix
-
-
     variance_covariance, variance_correlation, std_dev_covariance, std_dev_correlation = compute_transaction_risk(psn_qtys, covariance_matrix, correlation_matrix)
-
     return variance_covariance, variance_correlation, std_dev_covariance, std_dev_correlation
 
 
@@ -90,13 +86,19 @@ def compute_pnl(user, stk_id, qty, cur_stock_price):
     pnl=(cur_stock_price-weighed_price)*overall_qty
     return pv, weighed_price, pnl
 
-def ClosingPrices(request):
-    stock_df=pd.read_csv("/Users/prajaktadarade/Documents/Deshaw/Hypothetical Trade Analyzer/hypothetical-trade-analyzer/csv_files/Stock_prices.csv")
-    ret = stock_df.loc[stock_df['stk_id']==request.data['stk_id']][:10]
+def StockPrices(request):
+    stk=Stocks.objects.filter(stk_id=request.data['stk_id'])[0]
+    TS=stk.stk_TickerSym
+    recent_stocks_df = yahooFinance.download(TS, period="1mo")
+
     formatted_prices = []
 
-    for _,price in ret.iterrows():
-        formatted_prices.append({'Date': price.Date, 'Close/Last': float(price['Close/Last'].replace('$',''))})  # Adjust this based on your actual data structure
+    for index,price in recent_stocks_df.iterrows():
+        formatted_prices.append({'Date': index, 'Close':price['Close'],
+                                 'Open':price['Open'],
+                                 'High':price['High'],
+                                 'Low':price['Low'],
+                                 })  # Adjust this based on your actual data structure
 
     return formatted_prices
 

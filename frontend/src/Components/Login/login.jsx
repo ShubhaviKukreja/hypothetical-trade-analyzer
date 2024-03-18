@@ -4,6 +4,10 @@ import { FaUser, FaLock } from 'react-icons/fa';
 import SignUp from '../SignUp/SignUp';
 import Main from '../MainPage/mainpage';
 import axios from 'axios';
+// import { Link } from 'react-router-dom';
+// import { useHistory } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
+// import React, { useState } from 'react';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -12,29 +16,48 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     if(e)e.preventDefault();
+
     
     try {
-      const response = await axios.post('http://localhost:8000/login', {
+      const response = await axios.post('http://localhost:8000/login/', {
         username,
         password
       });
       
-      console.log(response.data); // Assuming backend returns some data
-      // Set login status to true after successful login
+      console.log('Login successful!', response.data);
+      // const parsedUserData = JSON.parse(response.data.user);
+      localStorage.setItem('user', JSON.stringify(response.data));
+      console.log(localStorage.getItem('user'));
       setLoggedIn(true);
+
     } catch (error) {
       console.error('Error:', error);
     }
   };
 
+
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     await handleLogin();
   };
+  // const navigate = useNavigate();
+
+  // const handleClick = () => {
+  //   navigate('/signup');
+  // };
+
+
+
+  function handleClick(e) {
+    window.location.href = <SignUp/>;
+    e.preventDefault();
+  }
+
 
   return (
-    <div className="container">
-      <div className="wrapper">
+      <div className="wrapper" style={{backgroundColor: 'blue'}}>
         {loggedIn ? (
           // Render the Main component when logged in
           <Main />
@@ -64,21 +87,21 @@ const Login = () => {
               <label>
                 <input type="checkbox" /> Remember me?
               </label>
-              <a href="#"> Forget password?</a>
+              <a href={<SignUp/>}> Forget password?</a>
             </div>
             <button type="submit">Log in</button>
 
             <div className="register-link">
-              <p>
-                {' '}
-                Don't have an account ? <a href={<SignUp/>}>Sign Up</a>
-              </p>
+                 {/* <button onClick={handleClick}>Don't have an account? SignUp</button> */}
+                 <a href={<SignUp/>} onClick={handleClick}>Don't have an account? SignUp</a>
             </div>
           </form>
         )}
       </div>
-    </div>
   );
 };
 
 export default Login;
+
+
+
