@@ -10,7 +10,7 @@ import { Line } from 'react-chartjs-2';
 import "./particularStock.css";
 import { Button, Result, Form, Table, InputNumber, Tag, Space } from 'antd';
 import { Link } from 'react-router-dom';
-
+import ResultBuying from '../../../src/Components/Use/Result'
 
 function LeftTabsExample() {
     const [quantity, setQuantity] = useState('');
@@ -22,7 +22,7 @@ function LeftTabsExample() {
     const [Prices, setPrices] = useState([]);
     const [chartData, setChartData] = useState({});
     const [quantity2, setQuantity2] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
+    const [successMessage, setSuccessMessage] = useState(0);
     const [loading, setLoading] = useState(false);
     const [stockinfo, setStockInfo] = useState({});
 
@@ -239,16 +239,16 @@ function LeftTabsExample() {
 
                                 <Button type="primary" style={{ fontSize: '100%', backgroundColor: '#1f2fa5' }} disabled={loading}onClick={handleSubmit2}>Submit</Button>
                             </Form>
-                            {successMessage && <p>{successMessage}</p> && (
+                            {!successMessage && <p>{successMessage}</p> && (
                                 <Result
                                     status="success"
                                     title="Successfully Calculated !"
                                     subTitle="The Transaction has been successfully Updated."
                                     extra={[
-                                        <Button style={{ backgroundColor: '#1f2fa5' }} key="console">
+                                        <Button style={{ backgroundColor: '#1f2fa5' }} key="console" >
                                             Done
                                         </Button>,
-                                        <Button key="buy"> Calculate Again</Button>,
+                                        <Button key="buy" onClick={ () => setSuccessMessage(1-successMessage) }> Calculate Again</Button>,
                                     ]}
                                 />
                             )}
