@@ -5,7 +5,6 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 
-
 function navbar() {
   return (
     <Navbar expand="lg" data-bs-theme= "dark" style={{marginBottom: '10px' , backgroundColor:'#1f2fa5'}}>
@@ -18,8 +17,8 @@ function navbar() {
             style={{ maxHeight: '100px' }}
             navbarScroll
           >
-            <Nav.Link href="#action1" style={{color: 'white'}}>Profile</Nav.Link>
-            <Nav.Link href="#action2" style={{color: 'white'}}>History</Nav.Link>
+            <Nav.Link href="/profile" style={{color: 'white'}}>Profile</Nav.Link>
+            <Nav.Link href="/getlist" style={{color: 'white'}}>Main Page</Nav.Link>
             {/* <NavDropdown title="Link" id="navbarScrollingDropdown">
               <NavDropdown.Item href="#action3">Action</NavDropdown.Item>
               <NavDropdown.Item href="#action4">

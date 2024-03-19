@@ -9,7 +9,6 @@ import 'react-tabs/style/react-tabs.css';
 import "chart.js/auto";
 import { Button, Result, Form, Table, InputNumber, Tag, Space } from 'antd';
 import { Link } from 'react-router-dom';
-import LeftTabsExample from '../ParticularStock/particularStock.js';
 import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
@@ -162,19 +161,10 @@ const columnsPnlList = [
     key: 'c5',
   },
 ];
-const handle = (user) => {
-  // Perform login actions
-  // Then navigate to /st1 with user value
-  navigate('/Main');
-}
+
 return (
     <div>
-      <div>
-          <div>
-          <h1>ST1</h1>
-          <button onClick={() => handle(user)}>ST1</button>
-        </div>
-      </div>
+     
         <Tab.Container id="left-tabs-example" defaultActiveKey="first" >
             <Row>
                 <Col sm={3}>
