@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom';
 import ResultBuying from '../../../src/Components/Use/Result'
 
 function LeftTabsExample() {
+    const storedUser=localStorage.getItem('user')
     const [quantity, setQuantity] = useState('');
     const [risk_cov, setRiskCov] = useState('');
     const [risk_cor, setRiskCor] = useState('');
@@ -32,7 +33,7 @@ function LeftTabsExample() {
     const [stockinfo, setStockInfo] = useState({});
     const [new_stk_pos, setStockPos] = useState({});
     const [new_pos, setPosition] = useState({});
-
+    const [user, setUser]=useState(null);
     const handleSubmit2 = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -42,7 +43,7 @@ function LeftTabsExample() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ qty: quantity2, stk_id: 2 }), // Default stk_id as 2
+                body: JSON.stringify({ qty: quantity2, stk_id: 2,user:user }), // Default stk_id as 2
             });
             const data = await response.json();
             if (response.ok) {
@@ -62,6 +63,8 @@ function LeftTabsExample() {
     };
 
     useEffect(() => {
+        setUser(JSON.parse(storedUser));
+
         // Fetch closing prices from backend
         fetchClosingPrices();
         fetchStkData();
@@ -153,7 +156,7 @@ function LeftTabsExample() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ quantity, stk_id: 2 }), // static stock_id as 1
+                body: JSON.stringify({ quantity, stk_id: 2 ,user:user }), // static stock_id as 1
             });
             const data = await response.json();
             setVarCov(data.portfolio_var_covariance);
@@ -277,7 +280,7 @@ function LeftTabsExample() {
     }
     return (
         <div>
-            <h2 style={{textAlign: 'center'}}> Stock Name </h2>
+            <h2 style={{textAlign: 'center'}}> META </h2>
             <Tab.Container id="left-tabs-example" defaultActiveKey="first" >
             <Row>
                 <Col sm={3}>
@@ -349,12 +352,12 @@ function LeftTabsExample() {
                                             Done
                                         </Button>,
                                         <Button key="buy" onClick={ () => setSuccessMessage(1-successMessage) }> Calculate Again</Button>,
-                                        <div>
-                                        <h3>Current Stock Information</h3>
-                                        <StockInfoTable data={new_stk_pos} />
-                                        <h3>Updated Position Table</h3>
-                                        <StockInfoTable data={new_pos} />
-                                        </div>
+                                        // <div>
+                                        // <h3>Current Stock Information</h3>
+                                        // <StockInfoTable data={new_stk_pos} />
+                                        // <h3>Updated Position Table</h3>
+                                        // <StockInfoTable data={new_pos} />
+                                        // </div>
                                        
                                     ]}
                                 />

@@ -27,19 +27,18 @@ def login(request):
     if request.method == 'POST':
         username = request.data.get('username')
         password = request.data.get('password')
+
         userdata= User.objects.filter(user_name=username).values()
-        
+        print(userdata)
         if len(userdata)==0 :
             print("no user")
             return Response({'message': 'User does not exist'}, status=status.HTTP_400_BAD_REQUEST)
         
 
         user_data=User.objects.get(user_name=username)
+
         user =  json.dumps(model_to_dict(user_data))
-        if (check_password(password,userdata[0]['user_pwd'])):
-            # return Response({'message': 'Login successful'})
-            
-            print(userdata[0]['user_name']) 
+        if ((password==userdata[0]['user_pwd'])):
             return JsonResponse({'message': 'Login successful','user': user})
         else:
             return Response({'message': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
@@ -144,7 +143,7 @@ def getPnlList(request):
 
 @api_view(['POST'])
 def getTransactionHis(request):
-    user=request.data.get('user')
+    user=request.data['user']
     user=user['user']
     user = ast.literal_eval(user)
     userobj=User.objects.get(user_name=user['user_name'])
@@ -157,28 +156,36 @@ def getTransactionHis(request):
 
 @api_view(['GET'])
 def getPositionInfo(request):
-    data = Positiontable.objects.filter(user=request.user)
+    user=request.data['user']
+    user=user['user']
+    user = ast.literal_eval(user)
+    userobj=User.objects.get(user_name=user['user_name'])
+    data = Positiontable.objects.filter(user=userobj)
     position = PositiontableSerializer(data,many=True)
     return Response(position.data)
 
 
 @api_view(['POST'])
 def getCurrentPNL(request):
-    user=request.data.get('user')
+    user=request.data['user']
     user=user['user']
     user = ast.literal_eval(user)
     userobj=User.objects.get(user_name=user['user_name'])
     data =Pnltable.objects.filter(user=userobj)
     stocks=PnltableSerializer(data, many=True)
-    return JsonResponse(stocks.data, safe=False)
-
-
+    print(stocks)
+    return Response(stocks.data)
 
 
 @api_view(['POST'])
 def getRiskandPNL(request):
     data=request.data
-    request.user=Users.objects.all()[0]
+    user=request.data['user']
+    print(user)
+    user=user['user']
+    user = ast.literal_eval(user)
+    userobj=User.objects.get(user_name=user['user_name'])
+    request.user=userobj
     portfolio_var_covariance, portfolio_var_correlation, risk_covariance, risk_correlation=compute_risk(request)
     stk=Stocks.objects.get(stk_id=data['stk_id'])
     current_positions = Stock_prices.objects.filter(stk_id=stk)[0].stk_price
@@ -189,6 +196,22 @@ def getRiskandPNL(request):
     return Response({"portfolio_var_covariance":portfolio_var_covariance, "portfolio_var_correlation":portfolio_var_correlation, "risk_covariance":risk_covariance, "risk_correlation":risk_correlation,"pnl":pnl,
                      "portfolio_var_covariance_old":portfolio_var_covariance_old, "portfolio_var_correlation_old":portfolio_var_correlation_old, "risk_covariance_old":risk_covariance_old, "risk_correlation_old":risk_correlation_old,"pnl_old":pnl_old
                      })
+
+# @api_view(['POST'])
+# def getRiskandPNLMultiStock(request):
+#     data=request.data
+#     request.user=Users.objects.all()[0]
+#     portfolio_var_covariance, portfolio_var_correlation, risk_covariance, risk_correlation=compute_risk_multistock(request)
+#     stk=Stocks.objects.get(stk_id=data['stk_id'])
+#     current_positions = Stock_prices.objects.filter(stk_id=stk)[0].stk_price
+#     _,_,pnl=compute_pnl(request.user,data['stk_id'],data['quantity'],current_positions)
+#     request.data['quantity']=0
+#     portfolio_var_covariance_old, portfolio_var_correlation_old, risk_covariance_old, risk_correlation_old=compute_risk(request)
+#     _,_,pnl_old=compute_pnl(request.user,data['stk_id'],data['quantity'],current_positions)
+#     return Response({"portfolio_var_covariance":portfolio_var_covariance, "portfolio_var_correlation":portfolio_var_correlation, "risk_covariance":risk_covariance, "risk_correlation":risk_correlation,"pnl":pnl,
+#                      "portfolio_var_covariance_old":portfolio_var_covariance_old, "portfolio_var_correlation_old":portfolio_var_correlation_old, "risk_covariance_old":risk_covariance_old, "risk_correlation_old":risk_correlation_old,"pnl_old":pnl_old
+#                      })
+
 
 @api_view(['POST'])
 def addStock(request):
@@ -205,6 +228,12 @@ def buyStock(request):
     stockdata={
         "stk_id":request.data['stk_id']
     }
+    data=request.data
+    user=request.data['user']
+    user=user['user']
+    user = ast.literal_eval(user)
+    userobj=User.objects.get(user_name=user['user_name'])
+    request.user=userobj
     # stockdata = StocksSerializer(data=request.data, many=True)
     qty=request.data['qty']
     cur_date=datetime.date.today()
@@ -212,7 +241,6 @@ def buyStock(request):
     #adding current transaction to transaction table
     print("cur_stock_price:",cur_stock_price)
     stk=Stocks.objects.filter(stk_id=stockdata['stk_id'])[0]
-    request.user=Users.objects.all()[0]
     # txn_obj=Transactiontable(date=cur_date, stk_id=stk, user=request.user, txn_qty=qty, txn_price=cur_stock_price, market_value=qty*cur_stock_price, transaction_type=0) #here 0 denotes that type is buy
     dt={"date":cur_date, "stk_id":stk.pk, "user":request.user.pk, "txn_qty":qty, "txn_price":cur_stock_price, "market_value":qty*cur_stock_price, "transaction_type":0}
     txn_obj = TransactiontableSerializer(data=dt,many=False)
@@ -282,6 +310,12 @@ def buyStock(request):
 
 @api_view(['GET'])
 def getCurrentPosition(request,stock_name):
+    data=request.data
+    user=request.data['user']
+    user=user['user']
+    user = ast.literal_eval(user)
+    userobj=User.objects.get(user_name=user['user_name'])
+    request.user=userobj
     stock=Stocks.objects.get(stk_name=stock_name)
     data = Positiontable.objects.filter(user=request.user,stk_id=stock)
     position = PositiontableSerializer(data,many=True)

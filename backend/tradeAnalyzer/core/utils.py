@@ -54,7 +54,11 @@ def compute_risk(request):
         # else:
         # close_name=f'Close.{i}'
             # ret = recent_stocks_df[close_name][TickerSyms]
-        ret = recent_stocks_df['Close'][TickerSyms[i]]
+        print(recent_stocks_df.columns)
+        if(len(stk_ids)==1):
+            ret = recent_stocks_df['Close']
+        else:
+            ret = recent_stocks_df['Close'][TickerSyms[i]]
         shifted=ret.shift(1) #shift the stock prices by 1 day
         shifted = shifted.interpolate(method='linear', axis=0, limit_direction='forward')
         #get percentage change in prices of this stock for last 5 days
