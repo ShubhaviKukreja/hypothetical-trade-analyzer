@@ -3,8 +3,9 @@ import './login.css';
 import { FaUser, FaLock } from 'react-icons/fa';
 import SignUp from '../SignUp/SignUp';
 import Main from '../MainPage/mainpage';
-import Profile from '../Profile/profile';
 import axios from 'axios';
+import StockList from '../StocksPage/stockspage.js';
+
 // import { Link } from 'react-router-dom';
 // import { useHistory } from 'react-router-dom';
 // import { useNavigate } from 'react-router-dom';
@@ -17,14 +18,11 @@ const Login = () => {
   
   const handleLogin = async (e) => {
     if(e)e.preventDefault();
-
-    
     try {
       const response = await axios.post('http://localhost:8000/login/', {
         username,
         password
       });
-      
       console.log('Login successful!', response.data);
       // const parsedUserData = JSON.parse(response.data.user);
       localStorage.setItem('user', JSON.stringify(response.data));
@@ -61,7 +59,7 @@ const Login = () => {
       <div className="wrapper" style={{backgroundColor: 'blue'}}>
         {loggedIn ? (
           // Render the Main component when logged in
-          <Profile />
+          <StockList />
         ) : (
           // Render the login form when not logged in
           <form onSubmit={handleSubmit}>

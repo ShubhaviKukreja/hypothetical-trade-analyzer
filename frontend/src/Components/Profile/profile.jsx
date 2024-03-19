@@ -37,7 +37,7 @@ const Profile = () => {
       if (user) {
         console.log('User:', user); 
         try {
-          const response = await axios.post('http://localhost:8000/getUserlist/', {
+          const response = await axios.post('http://localhost:8000/getUserlist', {
             user
           });
           setstocks(response.data);

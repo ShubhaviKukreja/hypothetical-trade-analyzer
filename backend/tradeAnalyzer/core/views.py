@@ -108,7 +108,8 @@ def getStockInfo(request):
 
 @api_view(['GET'])
 def getstocklist(request):
-    data =pd.read_csv("D:/desshaw/project/hypothetical-trade-analyzer/csv_files/Stocks.csv")
+    # data =pd.read_csv("D:/desshaw/project/hypothetical-trade-analyzer/csv_files/Stocks.csv")
+    data =Stocks.objects.all().values()
     stocks =StocksSerializer(data,many=True)
     return Response(stocks.data)
 
@@ -217,9 +218,17 @@ def getRiskandPNL(request):
 def addStock(request):
     print(request.data)
     stockdata = StocksSerializer(data=request.data, many=True)
+    if not stockdata.is_valid():
+        errors = stockdata.errors
+
+        for field, error_list in errors.items():
+            # Field-specific error handling
+            for error in error_list:
+                print(f"Error in field '{field}': {error}")
     if stockdata.is_valid():
         stockdata.save()
         return Response("stock data added successfully")
+    
 
 
 @api_view(['POST'])

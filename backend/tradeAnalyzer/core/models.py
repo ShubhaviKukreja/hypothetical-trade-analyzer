@@ -17,7 +17,7 @@ class User(models.Model):
  
 #list of a stocks
 class Stocks(models.Model):
-  stk_id=models.IntegerField()
+  stk_id=models.IntegerField(unique=True)
   stk_name=models.CharField(max_length=50)
   stk_TickerSym=models.CharField(max_length=50)
   stk_info=models.TextField()

@@ -34,6 +34,8 @@ function LeftTabsExample() {
     const [new_stk_pos, setStockPos] = useState({});
     const [new_pos, setPosition] = useState({});
     const [user, setUser]=useState(null);
+    const [stk_id, setStkId] = useState(2);
+    const [stk_name, setStkName] = useState("");
     const handleSubmit2 = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -43,7 +45,7 @@ function LeftTabsExample() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ qty: quantity2, stk_id: 2,user:user }), // Default stk_id as 2
+                body: JSON.stringify({ qty: quantity2, stk_id: stk_id,user:user }), // Default stk_id as 2
             });
             const data = await response.json();
             if (response.ok) {
@@ -64,7 +66,8 @@ function LeftTabsExample() {
 
     useEffect(() => {
         setUser(JSON.parse(storedUser));
-
+        setStkId(JSON.parse(localStorage.getItem('stkid')));
+        setStkName(JSON.parse(localStorage.getItem('stkname')));
         // Fetch closing prices from backend
         fetchClosingPrices();
         fetchStkData();
@@ -77,7 +80,7 @@ function LeftTabsExample() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ stk_id: 2 }), // default stk_id as 2
+                body: JSON.stringify({ stk_id: stk_id }), // default stk_id as 2
             });
             const data = await response.json();
             setPrices(data);
@@ -92,7 +95,7 @@ function LeftTabsExample() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ stk_id: 2 }), // default stk_id as 2
+                body: JSON.stringify({ stk_id: stk_id }), // default stk_id as 2
             });
             const data = await response.json();
             setStockInfo(data);
@@ -156,7 +159,7 @@ function LeftTabsExample() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ quantity, stk_id: 2 ,user:user }), // static stock_id as 1
+                body: JSON.stringify({ quantity, stk_id: stk_id ,user:user }), // static stock_id as 1
             });
             const data = await response.json();
             setVarCov(data.portfolio_var_covariance);
@@ -280,7 +283,7 @@ function LeftTabsExample() {
     }
     return (
         <div>
-            <h2 style={{textAlign: 'center'}}> META </h2>
+            <h2 style={{textAlign: 'center'}}> {stk_name }</h2>
             <Tab.Container id="left-tabs-example" defaultActiveKey="first" >
             <Row>
                 <Col sm={3}>
