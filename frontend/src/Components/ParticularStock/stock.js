@@ -13,19 +13,29 @@ import { Link } from 'react-router-dom';
 import ResultBuying from '../../../src/Components/Use/Result'
 
 function LeftTabsExample() {
+    const storedUser=localStorage.getItem('user')
     const [quantity, setQuantity] = useState('');
     const [risk_cov, setRiskCov] = useState('');
     const [risk_cor, setRiskCor] = useState('');
     const [var_portfolio_cov, setVarCov] = useState('');
     const [var_portfolio_cor, setVarCor] = useState('');
     const [pnl, setPnl] = useState('');
+    const [risk_cov_old, setRiskCovOld] = useState('');
+    const [risk_cor_old, setRiskCorOld] = useState('');
+    const [var_portfolio_cov_old, setVarCovOld] = useState('');
+    const [var_portfolio_cor_old, setVarCorOld] = useState('');
+    const [pnl_old, setPnlOld] = useState('');
     const [Prices, setPrices] = useState([]);
     const [chartData, setChartData] = useState({});
     const [quantity2, setQuantity2] = useState('');
     const [successMessage, setSuccessMessage] = useState(0);
     const [loading, setLoading] = useState(false);
     const [stockinfo, setStockInfo] = useState({});
-
+    const [new_stk_pos, setStockPos] = useState({});
+    const [new_pos, setPosition] = useState({});
+    const [user, setUser]=useState(null);
+    const [stk_id, setStkId] = useState(2);
+    const [stk_name, setStkName] = useState("");
     const handleSubmit2 = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -35,11 +45,15 @@ function LeftTabsExample() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ qty: quantity2, stk_id: 2 }), // Default stk_id as 2
+                body: JSON.stringify({ qty: quantity2, stk_id: stk_id,user:user }), // Default stk_id as 2
             });
             const data = await response.json();
             if (response.ok) {
                 setSuccessMessage(data.message);
+                setStockPos(data.stk_psn);
+                setPosition(data.position);
+                console.log(data.stk_psn);
+                console.log(data.position);
             } else {
                 console.error('Error:', data.error);
             }
@@ -51,6 +65,9 @@ function LeftTabsExample() {
     };
 
     useEffect(() => {
+        setUser(JSON.parse(storedUser));
+        setStkId(JSON.parse(localStorage.getItem('stkid')));
+        setStkName(JSON.parse(localStorage.getItem('stkname')));
         // Fetch closing prices from backend
         fetchClosingPrices();
         fetchStkData();
@@ -63,7 +80,7 @@ function LeftTabsExample() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ stk_id: 2 }), // default stk_id as 2
+                body: JSON.stringify({ stk_id: stk_id }), // default stk_id as 2
             });
             const data = await response.json();
             setPrices(data);
@@ -78,7 +95,7 @@ function LeftTabsExample() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ stk_id: 2 }), // default stk_id as 2
+                body: JSON.stringify({ stk_id: stk_id }), // default stk_id as 2
             });
             const data = await response.json();
             setStockInfo(data);
@@ -142,7 +159,7 @@ function LeftTabsExample() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ quantity, stk_id: 2 }), // static stock_id as 1
+                body: JSON.stringify({ quantity, stk_id: stk_id ,user:user }), // static stock_id as 1
             });
             const data = await response.json();
             setVarCov(data.portfolio_var_covariance);
@@ -150,12 +167,46 @@ function LeftTabsExample() {
             setRiskCov(data.risk_covariance);
             setRiskCor(data.risk_correlation);
             setPnl(data.pnl);
+            setVarCovOld(data.portfolio_var_covariance_old);
+            setVarCorOld(data.portfolio_var_correlation_old);
+            setRiskCovOld(data.risk_covariance_old);
+            setRiskCorOld(data.risk_correlation_old);
+            setPnlOld(data.pnl_old);
         } catch (error) {
             console.error('Error:', error);
         }
     };
-
-
+    const StockInfoTable = ({ data }) => {
+        return (
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Position ID</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Stock ID</th>
+                <th>User</th>
+                <th>Weighed Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.date}</td>
+                  <td>{item.position_id}</td>
+                  <td>{item.psn_qty}</td>
+                  <td>{item.pv}</td>
+                  <td>{item.stk_id}</td>
+                  <td>{item.user}</td>
+                  <td>{item.weighed_price}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        );
+      };
+      
     // Table fourth
     const columns = [
         {
@@ -166,10 +217,61 @@ function LeftTabsExample() {
     
         {
             title: 'Value',
-            dataIndex: 'val',
             key: 'val',
+            dataIndex: 'val',
+            render: (tags) => (
+                <span>
+                <Tag color={'royalblue' } key={tags}>
+                    {tags}
+                </Tag>
+            
+                </span>
+            ),
         },
     ];
+        // Table fourth
+        const columns2 = [
+            {
+                title: 'Attribute',
+                dataIndex: 'name',
+                key: 'name',
+            },
+
+            {
+                title: 'Old',
+            key: 'old',
+            dataIndex: 'old',
+            render: (tags) => (
+                <span>
+                <Tag color={'royalblue'} key={tags}>
+                    {tags}
+                </Tag>
+            
+                </span>
+            ),
+            },
+            {
+                title: 'New',
+            key: 'new',
+            dataIndex: 'new',
+            render: (tags) => (
+                <span>
+                <Tag color={'mediumseagreen'} key={tags}>
+                    {tags}
+                </Tag>
+            
+                </span>
+            ),
+            },
+
+        ];
+    const data2=[{key:1,name:'Risk using Covariance',old:risk_cov_old,new:risk_cov},
+    {key:2,name:'Risk using Correlation',old:risk_cor_old,new:risk_cor},
+    {key:3,name:'Portfolio Variance using Covariance',old:var_portfolio_cov_old,new:var_portfolio_cov},
+    {key:4,name:'Portfolio Variance using Correlation',old:var_portfolio_cor_old,new:var_portfolio_cor},
+    {key:5,name:'PnL',old:pnl_old,new:pnl}
+    ]
+
     const data=[]
     let i=0;
     for (const [key, value] of Object.entries(stockinfo)) {
@@ -181,7 +283,7 @@ function LeftTabsExample() {
     }
     return (
         <div>
-            <h2 style={{textAlign: 'center'}}> Stock Name </h2>
+            <h2 style={{textAlign: 'center'}}> {stk_name }</h2>
             <Tab.Container id="left-tabs-example" defaultActiveKey="first" >
             <Row>
                 <Col sm={3}>
@@ -216,21 +318,23 @@ function LeftTabsExample() {
                                 </Form>
                                
                             </div>
-                            <div style={{marginTop: '10%'}}>
-                                <p><b>Risk using Covariance :- {risk_cov}</b></p>
-                                <p><b>Risk using Correlation :- {risk_cor}</b></p>
-                                <p><b>Portfolio Variance using Covariance :- {var_portfolio_cov}</b></p>
-                                <p><b>Portfolio Variance using Correlation :- {var_portfolio_cor}</b></p>
-                                <p><b>Quantity :- {quantity}</b></p>
-                                <p><b>PnL :- {pnl}</b></p>
-                            </div>
+
     
+                            
+                            <Table
+                                columns={columns2}
+                                pagination={{
+                                    position: ['bottomCenter'],
+                                }}
+                                dataSource={data2}
+                            />
+
                         </Tab.Pane>
                         <Tab.Pane eventKey="second">
                             {/* Contents for Buying Stock tab */}
                             <Form onSubmit={handleSubmit2} style={{ justifyContent: 'center', alignItems: '' }}>
-                                <h2 style={{ textAlign: 'center' }}><b>Buying Stock</b></h2>
-                                <h2><b>Quantity</b></h2>
+                                {/* <h2 style={{ textAlign: 'center' }}><b>Buying Stock</b></h2> */}
+                                {/* <h2><b>Quantity</b></h2> */}
                                 <Form.Item>
                                     <InputNumber style={{ width: '50%' }}
                                         type="number"
@@ -241,7 +345,7 @@ function LeftTabsExample() {
 
                                 <Button type="primary" style={{ fontSize: '100%', backgroundColor: '#1f2fa5' }} disabled={loading}onClick={handleSubmit2}>Submit</Button>
                             </Form>
-                            {!successMessage && <p>{successMessage}</p> && (
+                            {successMessage && <p>{successMessage}</p> && (
                                 <Result
                                     status="success"
                                     title="Successfully Calculated !"
@@ -251,9 +355,18 @@ function LeftTabsExample() {
                                             Done
                                         </Button>,
                                         <Button key="buy" onClick={ () => setSuccessMessage(1-successMessage) }> Calculate Again</Button>,
+                                        // <div>
+                                        // <h3>Current Stock Information</h3>
+                                        // <StockInfoTable data={new_stk_pos} />
+                                        // <h3>Updated Position Table</h3>
+                                        // <StockInfoTable data={new_pos} />
+                                        // </div>
+                                       
                                     ]}
                                 />
-                            )}
+                            )
+
+                            }
                             
                         </Tab.Pane>
                         <Tab.Pane eventKey="third">

@@ -1,7 +1,7 @@
 import './App.css';
 import Login from '../src/Components/Login/login.jsx'
 import SignUp from '../src/Components/SignUp/SignUp.jsx'
-import StockList from './Components/MainPage/mainpage.jsx'
+// import StockList from './Components/MainPage/mainpage.jsx'
 // import Main from '../src/Components/ParticularStock/particularStock.js'
 import{
   BrowserRouter as Router , Routes,Route
@@ -10,6 +10,7 @@ import Profile from '../src/Components/Profile/profile.jsx'
 import NavBar from '../src/Components/NavBar/navbar.jsx'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Main  from '../src/Components/ParticularStock/stock.js';
+import StockList from '../src/Components/StocksPage/stockspage.js';
 
 function App() {
   return (
@@ -17,11 +18,11 @@ function App() {
       <NavBar/>
       <Router>
         <Routes>
-          <Route path='/' element={<Profile/>} />
-          {/* <Route path='/getlist' element={<StockList/>} /> */}
-          {/* <Route path='/' element={<Main/>} /> */}
-          {/* <Route path='/login' element={<Login/>} /> */}
-          {/* <Route path='/signup' element={<SignUp />} /> */}
+          <Route path='/profile' element={<Profile/>} />
+          <Route path='/getlist' element={<StockList/>} />
+          <Route path='/Main' element={<Main/>} />
+          <Route path='/' element={<Login/>} />
+          <Route path='/signup' element={<SignUp />} />
 
         </Routes>
       </Router>

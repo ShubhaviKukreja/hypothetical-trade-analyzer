@@ -34,7 +34,6 @@ def compute_risk(request):
     stk_ids = [entry.stk_id.stk_id for entry in data] #stocks in users position
     TickerSyms = [entry.stk_id.stk_TickerSym for entry in data] #stocks in users position
     psn_qtys = [[entry.stk_id.stk_id, entry.psn_qty] for entry in data] #quantity of stocks in users position
-    recent_stocks_df = yahooFinance.download(TickerSyms, period="10d")
     returns=[] 
     new_stock_name = request.data['stk_id'] #input stock 
     new_quantity = request.data['quantity'] #input quantity
@@ -44,23 +43,28 @@ def compute_risk(request):
         stk_ids.append(new_stock_name)
         psn_qtys.append([new_stock_name,new_quantity])
 
+    recent_stocks_df = yahooFinance.download(TickerSyms, period="10d")
     for i in psn_qtys:
         if i[0]==new_stock_name:
             i[1]+=float(new_quantity) #update the quantity of stock if it already exists in the position
             break
-    
     for i,stk_id in enumerate(stk_ids):
-        if(i==0):
-            close_name='Close'
+        # if(i==0):
+        #     close_name='Close'
+        # else:
+        # close_name=f'Close.{i}'
+            # ret = recent_stocks_df[close_name][TickerSyms]
+        print(recent_stocks_df.columns)
+        if(len(stk_ids)==1):
+            ret = recent_stocks_df['Close']
         else:
-            f'Close.{i}'
-            ret = recent_stocks_df[close_name]
-        ret = recent_stocks_df[close_name]
+            ret = recent_stocks_df['Close'][TickerSyms[i]]
         shifted=ret.shift(1) #shift the stock prices by 1 day
         shifted = shifted.interpolate(method='linear', axis=0, limit_direction='forward')
         #get percentage change in prices of this stock for last 5 days
         l1=list(ret)
         l2=list(shifted)
+
         if(len(l2)!=1):
             l2[0]=l2[1]
         else:
@@ -77,14 +81,22 @@ def compute_risk(request):
 
 def compute_pnl(user, stk_id, qty, cur_stock_price):
 
-    psn_obj=(Positiontable.objects.filter(user=user, stk_id=stk_id)[0])
-    print(psn_obj)
-    last_pv=(psn_obj).pv
-    pv=int(last_pv) + int(cur_stock_price) * int(qty)
-    overall_qty=(psn_obj).psn_qty
-    weighed_price=pv/overall_qty
-    pnl=(cur_stock_price-weighed_price)*overall_qty
-    return pv, weighed_price, pnl
+    try:
+        psn_obj = Positiontable.objects.get(user=user, stk_id=stk_id)
+        last_pv = psn_obj.pv
+        overall_qty = psn_obj.psn_qty
+        new_pv = int(cur_stock_price) * int(qty) + int(last_pv)
+        if overall_qty > 0:
+            weighed_price = ( new_pv) / (overall_qty + int(qty))
+            pnl = (cur_stock_price - weighed_price) * (overall_qty + int(qty))
+        else:
+            weighed_price = cur_stock_price
+            pnl = 0
+    except Positiontable.DoesNotExist:
+        weighed_price = cur_stock_price
+        pnl = 0
+        new_pv = int(cur_stock_price) * int(qty)
+    return weighed_price, pnl,new_pv
 
 def StockPrices(request):
     stk=Stocks.objects.filter(stk_id=request.data['stk_id'])[0]
